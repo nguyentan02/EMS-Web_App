@@ -1,100 +1,151 @@
 <script setup>
 import { useToast } from "vue-toast-notification";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { useAuthStore } from "../stores/auth.store";
 import SearchForm from "../components/SearchForm.vue";
-const useAuth = useAuthStore();
-// const getUser = async () => {
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Dialog from "primevue/dialog";
 
-// };
+import Password from "primevue/password";
+import dayjs from "dayjs";
+const visible = ref(false);
+const user = reactive({
+  username: "",
+  password: "",
+});
+
+const useAuth = useAuthStore();
+const $toast = useToast();
+
 const users = ref([]);
+const authStore = useAuthStore();
 onMounted(async () => {
   users.value = await useAuth.getUsers();
 });
+const submitRegister = async () => {
+  await authStore.register(user);
+
+  if (authStore.err) {
+    $toast.error(authStore.err, { position: "top-right" });
+    return;
+  }
+  $toast.success(authStore.result.message, { position: "top-right" });
+  users.value = await useAuth.getUsers();
+  user.username = " ";
+  user.password = " ";
+};
+
+const unlockUser = async (id) => {
+  await authStore.unLockUser(id);
+  if (authStore.err) {
+    $toast.error(authStore.err, { position: "top-right" });
+    return;
+  }
+  $toast.success(authStore.result.message, { position: "top-right" });
+  users.value = await useAuth.getUsers();
+};
+
+const lockUser = async (id) => {
+  await authStore.lockUser(id);
+  if (authStore.err) {
+    $toast.error(authStore.err, { position: "top-right" });
+    return;
+  }
+  $toast.success(authStore.result.message, { position: "top-right" });
+  users.value = await useAuth.getUsers();
+};
 </script>
+
 <template>
   <div class="flex justify-between items-center pt-3 pb-3">
     <h1 class="text-xl font-bold pl-4">Danh sách tài khoản</h1>
-    <button
-      class="mr-3 inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-green-600/20"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        fill="currentColor"
-        class="bi bi-pencil mr-2 w-[20px] h-[25px]"
-        viewBox="0 0 16 16"
-      >
-        <path
-          d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"
+
+    <div class="card flex justify-content-center">
+      <div>
+        <Button
+          class="h-[40px] w-[200px]"
+          label="Thêm tài khoản"
+          @click="visible = true"
         />
-      </svg>
-      Thêm tài khoản
-    </button>
+      </div>
+
+      <Dialog
+        v-model:visible="visible"
+        modal
+        header="Tạo tài khoản"
+        :style="{ width: '25rem' }"
+      >
+        <form @submit.prevent="submitRegister">
+          <div class="flex align-items-center gap-3 mb-3">
+            <label for="username" class="font-semibold w-6rem">Username</label>
+            <InputText
+              v-model="user.username"
+              id="username"
+              class="h-[40px]"
+              autocomplete="off"
+            />
+          </div>
+          <div class="flex align-items-center gap-3 mb-5">
+            <label for="password" class="font-semibold w-6rem">Mật khẩu</label>
+            <Password
+              v-model="user.password"
+              :feedback="false"
+              class="h-[40px]"
+              toggleMask
+            />
+          </div>
+          <div class="flex justify-content-end gap-2">
+            <Button
+              class="h-[40px]"
+              type="button"
+              label="Cancel"
+              severity="secondary"
+              @click="visible = false"
+            ></Button>
+            <Button
+              class="h-[40px]"
+              type="submit"
+              label="Đăng kí"
+              @click="visible = false"
+            ></Button>
+          </div>
+        </form>
+      </Dialog>
+    </div>
   </div>
 
   <hr />
   <SearchForm />
-  <table
-    class="table-auto w-full text-sm text-left text-gray-700"
-    v-for="user in users"
-    :key="user.id"
-  >
-    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+  <table class="table-auto w-full text-sm text-left text-gray-700">
+    <thead class="text-xs text-gray-700 bg-gray-50">
       <tr>
-        <th class="px-4 py-3">UserName</th>
-        <th class="px-4 py-3">Status</th>
-        <th class="px-4 py-3">Date created</th>
+        <th class="px-4 py-3">Tên Người Dùng</th>
+        <th class="px-4 py-3">Trạng thái</th>
+        <th class="px-4 py-3">Ngày tạo</th>
         <th class="px-4 py-3">
-          <span class="">Actions</span>
+          <span class="">Hành động</span>
         </th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
+    <tbody v-for="user in users" :key="user.id">
+      <tr class="border">
         <td class="px-4 py-3 font-medium text-gray-900">{{ user.username }}</td>
         <td class="flex items-center mt-3">
-          {{ user.status }}
-          <svg
-            v-if="user.status === 'active'"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6 text-green-600 ml-1"
+          <span v-if="user.status === 'active'" class="text-sky-500 font-medium"
+            >Hoạt động</span
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-          <svg
-            v-else-if="user.status === 'locked'"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6 text-red-500 ml-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
+          <span v-else class="text-red-500 font-medium">Khóa</span>
         </td>
         <td>
-          {{ new Date(user.createdAt).toLocaleDateString() }}
+          {{ dayjs(user.createdAt).format("DD/MM/YYYY") }}
         </td>
         <td>
-          <div class="">
+          <div class="text">
             <button
               v-if="user.status === 'locked'"
-              class="mr-3 inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+              @click="unlockUser(user.id)"
+              class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +165,8 @@ onMounted(async () => {
             </button>
             <button
               v-else-if="user.status === 'active'"
-              class="mr-6 inline-flex items-center rounded-md bg-yellow-400 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-green-600/20"
+              @click="lockUser(user.id)"
+              class="inline-flex items-center rounded-md bg-yellow-400 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-green-600/20"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +185,7 @@ onMounted(async () => {
 
               Khoá
             </button>
-            <button
+            <!-- <button
               class="inline-flex items-center rounded-md bg-red-500 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-green-600/20"
             >
               <svg
@@ -151,7 +203,7 @@ onMounted(async () => {
                 />
               </svg>
               Xoá
-            </button>
+            </button> -->
           </div>
         </td>
       </tr>

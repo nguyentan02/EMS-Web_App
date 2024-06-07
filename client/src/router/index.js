@@ -14,14 +14,14 @@ const routes = [
     },
     children: [
       {
-        path: "test1",
-        name: "test1",
-        component: () => import("../components/Test1.vue"),
+        path: "transfer",
+        name: "transfer",
+        component: () => import("../components/transferVue.vue"),
       },
       {
         path: "test",
         name: "test",
-        component: () => import("../components/Test.vue"),
+        component: () => import("../components/ManagerDevice.vue"),
       },
     ],
   },

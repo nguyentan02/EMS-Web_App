@@ -1,8 +1,9 @@
 <script setup>
 import NavBar from "../components/NavBar.vue";
-import test from "../components/Test.vue";
+import SideBar from "../components/SideBar.vue";
+import test from "../components/ManagerDevice.vue";
 </script>
 
 <template>
-  <NavBar />
+  <SideBar />
 </template>

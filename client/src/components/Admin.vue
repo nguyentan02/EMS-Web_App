@@ -1,18 +1,24 @@
 <template>
-  <div class="w-srceen h-screen flex">
-    <div class="w-[300px] h-full bg-gray-100">
-      <div class="h-[50px] bg-sky-800 flex items-center justify-center">
-        <span
-          class="before:block before:absolute before:-inset-1 before:-skew-y-3 before:bg-white relative inline-block"
+  <div class="relative flex min-h-screen">
+    <div class="bg-cyan-700 text-cyan-100 w-64" v-show="showSide">
+      <a class="flex items-center justify-center" href=""
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="h-10 w-10"
         >
-          <routerLink :to="{ name: 'users' }"
-            ><span class="relative text-gray font-bold px-4"
-              >EMS</span
-            ></routerLink
-          >
-        </span>
-      </div>
-      <div class="h-[calc(100vh-50px)] bg-gray-800 py-[20px]">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
+          />
+        </svg>
+        <span class="text-2xl font-extrabold">EMS</span>
+      </a>
+      <nav class="mt-4">
         <div class="flex flex-col space-y-[10px]">
           <router-link
             :to="{ name: 'users' }"
@@ -34,26 +40,46 @@
             Quản lý tài khoản</router-link
           >
         </div>
-      </div>
+      </nav>
     </div>
-    <div class="w-full h-full bg-gray-100">
-      <div
-        class="h-[50px] bg-sky-800 flex items-center justify-end pr-5 group cursor-pointer"
-      >
-        <Menu as="div" class="relative ml-3">
+    <div class="flex-1">
+      <div class="bg-white shadow px-2 py-4">
+        <button class="text-cyen-600" @click="toggleSideBar">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="h-8 w-8"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </button>
+        <Menu as="div" class="relative ml-3 float-right">
           <div>
             <MenuButton
-              class="relative flex items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+              class="relative flex items-center rounded-full bg-teal-600 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
-              <p class="text-center text-base text-white pl-2 mr-2">
-                Xin chào, {{ userStore.nameFilter() }}
-              </p>
+              <div class="flex flex-col">
+                <p class="text-center text-base text-white px-4 mr-2">
+                  {{ userStore.nameFilter() }}
+                </p>
+                <div class="text-[#fbbf24] font">
+                  {{ userStore.roleFilter() }}
+                </div>
+              </div>
               <span class="absolute -inset-1.5"></span>
               <span class="sr-only">Open user menu</span>
-              <img
-                class="h-8 w-8 rounded-full"
-                src="https://png.pngtree.com/png-clipart/20190520/original/pngtree-vector-users-icon-png-image_4144740.jpg"
-                alt=""
+              <fwb-avatar
+                img=""
+                rounded
+                status-position="top-right"
+                status="online"
               />
             </MenuButton>
           </div>
@@ -82,7 +108,7 @@
           </transition>
         </Menu>
       </div>
-      <div class="h-[calc(100vh-50px)] bg-white">
+      <div class="p-8 text-cyan-700 font-extralight">
         <router-view />
       </div>
     </div>
@@ -93,7 +119,7 @@ import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
 import { useUserStore } from "../stores/user.store";
 import { useAuthStore } from "../stores/auth.store";
-
+import { ref } from "vue";
 import {
   Disclosure,
   DisclosureButton,
@@ -103,6 +129,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/vue";
+import { FwbAvatar } from "flowbite-vue";
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -122,4 +149,10 @@ const submitLogout = async () => {
   userStore.clearSession();
   router.push({ name: "login" });
 };
+
+const showSide = ref(true);
+
+function toggleSideBar() {
+  showSide.value = !showSide.value;
+}
 </script>

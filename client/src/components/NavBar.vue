@@ -147,7 +147,12 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const $toast = useToast();
-
+import { onMounted } from "vue";
+onMounted(() => {
+  setInterval(() => {
+    authStore.checkToken();
+  }, 60000);
+});
 const submitLogout = async () => {
   await authStore.logout();
   if (authStore.err) {

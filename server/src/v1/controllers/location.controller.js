@@ -41,8 +41,8 @@ module.exports = {
   async getRooms(req, res, next) {
     try {
       const locationService = new LocationService();
-
       const room = await locationService.getRooms();
+
       res.status(201).json(room);
     } catch (error) {
       res.status(500).json({ error: error.message });

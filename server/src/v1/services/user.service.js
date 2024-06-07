@@ -19,8 +19,6 @@ class UserService {
       }
 
       const hashPassword = await bcrypt.hash(password, 10);
-
-      //Create user
       const newUser = await prisma.user.create({
         data: {
           username: username,
@@ -30,16 +28,12 @@ class UserService {
           role: "user",
         },
       });
-
-      return new ApiRes(201, "success", "User registered successfully", {
+      return new ApiRes(201, "success", "Tạo tài khoản thành công", {
         user: {
-          id: newUser.id,
-          username: newUser.username,
-          role: newUser.role,
+          newUser,
         },
       });
     } catch (error) {
-      console.error(error);
       return new ApiRes(500, "failed", "User registration failed", null);
     }
   }
@@ -58,7 +52,7 @@ class UserService {
         return new ApiRes(
           403,
           "failed",
-          `Account is locked due to multiple failed login attempts ${new Date(res.lockTo).toLocaleString()}`,
+          `Tài khoản của bạn bị khoá đến ${new Date(res.lockTo).toLocaleString()}`,
           null
         );
       }
@@ -83,12 +77,12 @@ class UserService {
           return new ApiRes(
             403,
             "failed",
-            `Account is locked due to multiple failed login attempt`,
+            `Tài khoản bị khóa do đăng nhập nhiều lần không thành công`,
             null
           );
         }
 
-        return new ApiRes(400, "failed", "Invalid password", null);
+        return new ApiRes(400, "failed", "Sai mật khẩu", null);
       }
       await prisma.user.update({
         where: { id: res.id },
@@ -151,6 +145,9 @@ class UserService {
         where: {
           role: "user",
         },
+        orderBy: {
+          createdAt: "asc",
+        },
       });
       return new ApiRes(200, "success", "Users retrieved successfully", users);
     } catch (error) {
@@ -158,10 +155,20 @@ class UserService {
       return new ApiRes(500, "failed", "Failed to retrieve users", null);
     }
   }
+  async deleteUser(id) {
+    try {
+      const user = await prisma.user.delete({
+        where: {
+          id: Number(id),
+        },
+      });
+      return new ApiRes(200, "success", "Delete successfully", null);
+    } catch (error) {
+      console.log(error);
+      return new ApiRes(500, "failed", "Failed to delete user", null);
+    }
+  }
   async unLockUser(id) {
-    const currentDate = new Date();
-    const lockToDate = new Date(currentDate);
-    lockToDate.setDate(currentDate.getDate() + 1);
     try {
       const user = await prisma.user.update({
         where: {
@@ -171,35 +178,60 @@ class UserService {
         data: {
           status: "active",
           failedAttempts: 0,
-          lockTo: lockToDate,
+          lockTo: null,
         },
       });
-      return new ApiRes(200, "succes", "Unlock successfully", null);
+      return new ApiRes(200, "succes", "Unlock successfully", user);
     } catch (error) {
       console.log(error);
       return error;
     }
   }
   async lockUser(id) {
+    const currentDate = new Date();
+    const lockToDate = new Date(currentDate);
+    lockToDate.setDate(currentDate.getDate() + 1);
     try {
       const user = await prisma.user.update({
         where: {
-          id: id,
+          id: +id,
           status: "active",
         },
-
         data: {
           status: "locked",
           failedAttempts: 5,
-          lockTo: null,
+          lockTo: lockToDate,
         },
       });
-      return new ApiRes(200, "succes", "Lock successfully", null);
+      return new ApiRes(200, "succes", "Lock successfully", user);
     } catch (error) {
       console.log(error);
       return error;
     }
   }
 }
-
+cron.schedule("*/15 * * * *", async function () {
+  const currentTime = new Date();
+  const req = await prisma.user.findMany({
+    where: {
+      lockTo: { lt: currentTime },
+    },
+  });
+  if (req.length > 0) {
+    await prisma.user.updateMany({
+      where: {
+        id: {
+          in: req.map((user) => user.id),
+        },
+      },
+      data: {
+        status: "active",
+        failedAttempts: 0,
+        lockTo: null,
+      },
+    });
+  }
+  console.log(req);
+  console.log("running a task every 15 seconds");
+});
 module.exports = UserService;

@@ -14,61 +14,55 @@ datasource db {
 }
 
 model User {
-  id             Int           @id @default(autoincrement())
-  username       String        @unique
+  id             Int       @id @default(autoincrement())
+  username       String    @unique
   password       String
-  status         String        @default("active") // active, locked
-  failedAttempts Int           @default(0)
-  createdAt      DateTime      @default(now())
-    role           String        @default("user") // default role
-  lockTo DateTime?  
-  ActiveTokens   ActiveToken[]
+  status         String    @default("active") // active, locked
+  failedAttempts Int       @default(0)
+  createdAt      DateTime  @default(now())
+  role           String    @default("user") // default role
+  lockTo         DateTime?
 }
 
-model ActiveToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  token     String   @unique
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Room {
+  id           Int       @id @default(autoincrement())
+  room_name    String
+  deparment_id Int
+  deparment    Deparment @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
+  Devices      Device[]
 }
 
-model Room{
-   id        Int      @id @default(autoincrement())
-   room_name      String
-    deparment_id   Int
-    deparment      Deparment     @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
+model Deparment {
+  id             Int    @id @default(autoincrement())
+  deparment_name String
+  rooms          Room[]
+}
+
+model Category {
+  id      Int      @id @default(autoincrement())
+  name    String
   Devices Device[]
 }
-model Deparment{
-   id        Int      @id @default(autoincrement())
-   deparment_name      String
-   rooms Room[]
-}
-model Category{
-  id  Int  @id @default(autoincrement())
-  name String
-  Devices Device[]
-}
-model Device{
-  id  Int  @id @default(autoincrement())
-  name String
-  model String
+
+model Device {
+  id            Int      @id @default(autoincrement())
+  name          String
+  model         String
   serial_number String
-  manufacturer String
-purchase_date DateTime
-price Int
-status_id Int
-category_id Int
-qr_code String
-room_id Int
- Room      Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
- Category     Category     @relation(fields: [category_id], references: [id], onDelete: Cascade)
- Status   Status  @relation(fields: [status_id], references: [id], onDelete: Cascade)
+  manufacturer  String
+  purchase_date DateTime
+  price         Int
+  qr_code       String?
+  Room          Room?    @relation(fields: [roomId], references: [id])
+  roomId        Int?
+  Category      Category @relation(fields: [categoryId], references: [id])
+  categoryId    Int
+  Status        Status?  @relation(fields: [statusId], references: [id])
+  statusId      Int?
 }
 
-model Status{
-  id   Int  @id @default(autoincrement())
-  name String
+model Status {
+  id      Int      @id @default(autoincrement())
+  name    String
   Devices Device[]
 }

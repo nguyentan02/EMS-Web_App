@@ -5,6 +5,7 @@ import { useCookies } from "vue3-cookies";
 import { useUserStore } from "../stores/user.store";
 import authService from "../services/auth.service";
 import { jwtDecode } from "jwt-decode";
+
 export const useAuthStore = defineStore(
   "auth",
   () => {
@@ -15,6 +16,18 @@ export const useAuthStore = defineStore(
     const result = ref(null);
     const user = ref(null);
     const users = ref(null);
+    const register = async (data) => {
+      err.value = null;
+      result.value = null;
+      try {
+        let res = await authService.register(data);
+        console.log(res);
+        if (res.code !== 201) throw new Error(res.message);
+        result.value = res;
+      } catch (error) {
+        err.value = error.message;
+      }
+    };
     const login = async (data) => {
       err.value = null;
       result.value = null;
@@ -40,7 +53,28 @@ export const useAuthStore = defineStore(
         err.value = error.message;
       }
     };
-
+    const lockUser = async (id) => {
+      err.value = null;
+      result.value = null;
+      try {
+        let res = await authService.lockUser(id);
+        if (res.code !== 200) throw new Error(res.message);
+        result.value = res;
+      } catch (error) {
+        err.value = error.message;
+      }
+    };
+    const unLockUser = async (id) => {
+      err.value = null;
+      result.value = null;
+      try {
+        let res = await authService.unLockUser(id);
+        if (res.code !== 200) throw new Error(res.message);
+        result.value = res;
+      } catch (error) {
+        err.value = error.message;
+      }
+    };
     const getUsers = async () => {
       err.value = null;
       result.value = null;
@@ -57,6 +91,7 @@ export const useAuthStore = defineStore(
 
     const checkToken = () => {
       const token = cookies.get("token");
+
       if (token) {
         const decoded = jwtDecode(token);
 
@@ -70,7 +105,18 @@ export const useAuthStore = defineStore(
         userStore.clearSession();
       }
     };
-    return { err, result, user, login, logout, checkToken, getUsers };
+    return {
+      err,
+      result,
+      user,
+      login,
+      logout,
+      checkToken,
+      getUsers,
+      lockUser,
+      unLockUser,
+      register,
+    };
   },
   {
     persist: {
