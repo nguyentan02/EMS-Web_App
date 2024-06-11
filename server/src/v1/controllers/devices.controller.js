@@ -87,4 +87,11 @@ module.exports = {
       console.log(error);
     }
   },
+  getHistoryTran: async (req, res, next) => {
+    try {
+      const deviceService = new DeviceService();
+      const history = await deviceService.getHistoryTransfer();
+      return res.json(history);
+    } catch (error) {}
+  },
 };

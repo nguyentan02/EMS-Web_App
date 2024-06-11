@@ -53,6 +53,18 @@ export const deviceStore = defineStore("device", () => {
       console.log(err.value);
     }
   };
+  const getHistoryTrans = async () => {
+    err.value = null;
+    devices.value = null;
+    try {
+      let res = await deviceService.historyTrans();
+      // console.log(res);
+      if (res.code !== 201) throw new Error(res.message);
+      return (devices.value = res.data);
+    } catch (error) {
+      err.value = error.message;
+    }
+  };
   return {
     result,
     err,
@@ -60,5 +72,6 @@ export const deviceStore = defineStore("device", () => {
     updateDevice,
     createDeive,
     tranferDevice,
+    getHistoryTrans,
   };
 });

@@ -13,8 +13,10 @@ class deviceService {
     return (await this.api.put("/update", data)).data;
   }
   async transferDevice(data) {
-    console.log(data);
     return (await this.api.put("/transfer", data)).data;
+  }
+  async historyTrans() {
+    return (await this.api.get("/histransfer")).data;
   }
 }
 

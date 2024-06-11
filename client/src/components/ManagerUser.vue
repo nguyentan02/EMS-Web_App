@@ -120,6 +120,7 @@ const lockUser = async (id) => {
   <table class="table-auto w-full text-sm text-left text-gray-700">
     <thead class="text-xs text-gray-700 bg-gray-50">
       <tr>
+        <th class="px-4 py-3">ID</th>
         <th class="px-4 py-3">Tên Người Dùng</th>
         <th class="px-4 py-3">Trạng thái</th>
         <th class="px-4 py-3">Ngày tạo</th>
@@ -130,6 +131,7 @@ const lockUser = async (id) => {
     </thead>
     <tbody v-for="user in users" :key="user.id">
       <tr class="border">
+        <td class="px-4 py-3 font-medium text-gray-900">{{ user.id }}</td>
         <td class="px-4 py-3 font-medium text-gray-900">{{ user.username }}</td>
         <td class="flex items-center mt-3">
           <span v-if="user.status === 'active'" class="text-sky-500 font-medium"

@@ -33,10 +33,10 @@ class DeviceService {
           manufacturer: manufac,
           purchase_date: new Date(purchase),
           price: +price,
-          status_id: status_id,
+          statusId: Number(1),
           categoryId: category_id,
           //   qr_code: qr_code,
-          roomId: location_id,
+          roomId: 10,
         },
       });
       return new ApiRes(201, "success", "Tạo thiết bị thành công", {
@@ -131,12 +131,27 @@ class DeviceService {
 
   async transferDevice(id, locationId) {
     try {
+      const extRoom = await prisma.device.findUnique({
+        where: { id: id },
+        select: { roomId: true },
+      });
+      if (extRoom.roomId == locationId) {
+        return new ApiRes(
+          400,
+          "warning",
+          "Thiết bị hiện đang ở phòng này",
+          null
+        );
+      }
+      const oldLocationId = extRoom.roomId;
       const transferData = await prisma.device.update({
         where: { id: id },
         data: {
           roomId: locationId,
         },
       });
+
+      await this.createHistory(id, oldLocationId, locationId);
       return new ApiRes(
         201,
         "success",
@@ -145,6 +160,49 @@ class DeviceService {
       );
     } catch (error) {
       return new ApiRes(500, "failed", "Đã xảy ra lỗi", error);
+    }
+  }
+  async createHistory(deviceId, oldLocationId, newLocationId) {
+    try {
+      await prisma.historyTransfer.create({
+        data: {
+          deviceId: deviceId,
+          oldLocationId: oldLocationId,
+          newLocationId: newLocationId,
+          transferDate: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create history:", error);
+    }
+  }
+  async getHistoryTransfer() {
+    try {
+      const history = await prisma.historyTransfer.findMany({
+        include: {
+          Device: {
+            select: {
+              name: true,
+              model: true,
+              serial_number: true,
+              statusId: true,
+            },
+          },
+          OldRoom: {
+            include: {
+              deparment: true,
+            },
+          },
+          NewRoom: {
+            include: {
+              deparment: true,
+            },
+          },
+        },
+      });
+      return new ApiRes(201, "success", "Truy vấn lịch sử thành công", history);
+    } catch (error) {
+      console.log(error);
     }
   }
 }

@@ -25,11 +25,13 @@ model User {
 }
 
 model Room {
-  id           Int       @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   room_name    String
   deparment_id Int
-  deparment    Deparment @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
+  deparment    Deparment         @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
   Devices      Device[]
+  oldHistories HistoryTransfer[] @relation("OldRoom")
+  newHistories HistoryTransfer[] @relation("NewRoom")
 }
 
 model Deparment {
@@ -59,10 +61,43 @@ model Device {
   categoryId    Int
   Status        Status?  @relation(fields: [statusId], references: [id])
   statusId      Int?
+
+  HistoryTransfer HistoryTransfer[]
+  UsageHistory    UsageHistory[]
 }
 
 model Status {
   id      Int      @id @default(autoincrement())
   name    String
   Devices Device[]
+}
+
+model HistoryTransfer {
+  id            Int      @id @default(autoincrement())
+  deviceId      Int
+  oldLocationId Int
+  newLocationId Int
+  transferDate  DateTime @default(now())
+  Device        Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  OldRoom       Room     @relation("OldRoom", fields: [oldLocationId], references: [id], onDelete: Cascade)
+  NewRoom       Room     @relation("NewRoom", fields: [newLocationId], references: [id], onDelete: Cascade)
+}
+
+model UsageHistory {
+  id          Int      @id @default(autoincrement())
+  deviceId    Int
+  user        String
+  roomId      Int
+  usage_start DateTime @default(now())
+  usage_end   DateTime
+  purpose     String?
+
+  Device  Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  History History[]
+}
+
+model History {
+  id           Int          @id @default(autoincrement())
+  usageId      Int
+  UsageHistory UsageHistory @relation(fields: [usageId], references: [id], onDelete: Cascade)
 }

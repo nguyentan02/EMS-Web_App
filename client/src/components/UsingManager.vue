@@ -1,17 +1,11 @@
 <script setup>
 import { ref, onMounted, reactive, watch } from "vue";
 import { deviceStore } from "../stores/devices.store";
-
+import { usageStore } from "@/stores/usage.store";
 import SearchForm from "../components/SearchForm.vue";
 import { roomStore } from "@/stores/room.store";
 import { cateStore } from "@/stores/category.store";
-import {
-  FwbButton,
-  FwbModal,
-  FwbInput,
-  FwbSelect,
-  FwbToast,
-} from "flowbite-vue";
+import { FwbButton, FwbModal, FwbInput, FwbSelect } from "flowbite-vue";
 import { useToast } from "vue-toast-notification";
 
 import dayjs from "dayjs";
@@ -20,13 +14,16 @@ const visible = ref(false);
 const useDeviceStore = deviceStore();
 const useRoomStore = roomStore();
 const useCateStore = cateStore();
+const useUsageStore = usageStore();
 const devices = ref();
+const usages = ref();
 const rooms = ref();
 const cates = ref();
 const $toast = useToast();
 onMounted(async () => {
   devices.value = await useDeviceStore.getAllDevices();
-  console.log(devices.value);
+  usages.value = await useUsageStore.getAllUsages();
+  console.log(usages.value);
   rooms.value = await useRoomStore.getRooms();
   cates.value = await useCateStore.getCate();
 });
@@ -59,18 +56,13 @@ const editDevices = reactive({
   purchase: "",
   price: "",
 });
-const showCustomToast = ref(false);
+
 const updateDevice = async () => {
   await useDeviceStore.updateDevice(editDevices);
   if (useDeviceStore.err) {
     $toast.error(useDeviceStore.err, { position: "top-right" });
     return;
   }
-  // showCustomToast.value = true;
-  // setTimeout(() => {
-  //   showCustomToast.value = false; // Hide the toast after a delay (e.g., 3 seconds)
-  // }, 3000);
-
   $toast.success(useDeviceStore.result.message, {
     position: "top-right",
   });
@@ -119,14 +111,13 @@ const createDevice = async () => {
 };
 </script>
 <template>
-  <div v-if="showCustomToast">
-    <fwb-toast type="success">Item moved successfully.</fwb-toast>
-  </div>
   <div class="flex justify-between items-center pt-3 pb-3">
-    <h1 class="text-xl font-bold pl-4">Danh sách thiết bị</h1>
+    <h1 class="text-xl font-bold pl-4">Danh sách thiết bị đang được sử dụng</h1>
 
     <div class="card flex justify-content-center">
-      <fwb-button @click="showModal1">Thêm thiết bị </fwb-button>
+      <fwb-button @click="showModal1" color="green"
+        >Đưa thiết bị vào sử dụng
+      </fwb-button>
       <fwb-modal persistent v-if="isShowModal1" @close="closeModal1">
         <template #header>
           <div class="flex items-center text-lg">Terms of Service</div>
@@ -220,57 +211,64 @@ const createDevice = async () => {
   <div v-if="!devices || devices.length === 0" class="text-center py-4">
     <p>Không có thiết bị nào</p>
   </div>
-  <table v-else class="w-full text-sm text-left text-gray-700">
+  <table v-else class="table-auto text-sm text-left text-gray-700">
     <thead class="text-xs text-gray-700 bg-gray-50">
       <tr>
         <th class="text-center border px-4 py-3">STT</th>
         <th class="text-center border px-4 py-3">Tên Thiết Bị</th>
-        <th class="text-center border px-4 py-3">Model</th>
+        <!-- <th class="text-center border px-4 py-3">Model</th> -->
         <th class="text-center border px-4 py-3">Số seri</th>
-        <th class="text-center border px-4 py-3">Ngày mua</th>
-        <th class="text-center border px-4 py-3">Giá</th>
+        <th class="text-center border px-4 py-3">Trạng thái</th>
         <th class="text-center border px-4 py-3">Loại thiết bị</th>
+        <th class="text-center border px-4 py-3">Phòng / Khoa</th>
+        <th class="text-center border px-4 py-3">Ngày bắt đầu</th>
+        <th class="text-center border px-4 py-3">Ngày hết hạn</th>
         <th class="text-center border px-4 py-3">
           <span class="">Hành động</span>
         </th>
       </tr>
     </thead>
-    <tbody v-for="(device, i) in devices" :key="device.id">
+    <tbody v-for="(usage, i) in usages" :key="usage.id">
       <tr class="">
         <td class="text-center border">{{ i + 1 }}</td>
         <td class="px-3 py-3 font-medium text-gray-900 border">
-          {{ device.name }}
-        </td>
-        <td class="text-center border">
-          {{ device.model }}
-        </td>
-        <td class="text-center border">
-          {{ device.serial_number }}
-        </td>
-        <td class="text-center border">
-          {{ dayjs(device.purchase_date).format("DD/MM/YYYY") }}
-          <!-- {{ new Date(device.purchase_date).toLocaleDateString() }} -->
-        </td>
-        <td class="text-red-500 font-semibold text-center border">
-          {{ formatCurrency(device.price) }}
+          {{ usage.Device.name }}
         </td>
         <!-- <td class="text-center border">
-          {{ device.Room.room_name }} /
-          {{ device.Room.deparment.deparment_name }}
+          {{ usage.Device.model }}
         </td> -->
-        <td class="text-center border">{{ device.Category.name }}</td>
+        <td class="text-center border">
+          {{ usage.Device.serial_number }}
+        </td>
+        <td class="text-center border">
+          {{ usage.Device.statusId }}
+          <!-- {{ new Date(device.purchase_date).toLocaleDateString() }} -->
+        </td>
+        <td class="text-center border">
+          {{ usage.Device.Category.name }}
+        </td>
+        <td class="text-center border">
+          {{ usage.Device.Room.room_name }} /
+          {{ usage.Device.Room.deparment.deparment_name }}
+        </td>
+        <td class="text-center border">
+          {{ dayjs(usage.usage_start).format("DD/MM/YYYY HH:mm:ss") }}
+        </td>
+        <td class="text-center border">
+          {{ dayjs(usage.usage_end).format("DD/MM/YYYY HH:mm:ss") }}
+        </td>
         <td class="text-center border">
           <fwb-button
             @click="
               () => {
-                editDevices.id = device.id;
-                editDevices.name = device.name;
-                editDevices.model = device.model;
-                editDevices.serial = device.serial_number;
-                editDevices.purchase = dayjs(device.purchase_date).format(
-                  'YYYY-MM-DD'
-                );
-                editDevices.price = device.price;
+                // editDevices.id = device.id;
+                // editDevices.name = device.name;
+                // editDevices.model = device.model;
+                // editDevices.serial = device.serial_number;
+                // editDevices.purchase = dayjs(device.purchase_date).format(
+                //   'YYYY-MM-DD'
+                // );
+                // editDevices.price = device.price;
                 showModal();
               }
             "

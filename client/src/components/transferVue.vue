@@ -5,7 +5,13 @@ import { deviceStore } from "../stores/devices.store";
 import SearchForm from "../components/SearchForm.vue";
 import { roomStore } from "@/stores/room.store";
 import { cateStore } from "@/stores/category.store";
-import { FwbButton, FwbModal, FwbInput, FwbSelect } from "flowbite-vue";
+import {
+  FwbButton,
+  FwbModal,
+  FwbInput,
+  FwbSelect,
+  FwbBadge,
+} from "flowbite-vue";
 import { useToast } from "vue-toast-notification";
 
 import dayjs from "dayjs";
@@ -104,7 +110,18 @@ const updateDevice = async () => {
           {{ device.serial_number }}
         </td>
         <td class="text-center border">
-          <p>Không hoạt động</p>
+          <fwb-badge
+            v-if="device.statusId === 1"
+            type="dark"
+            class="w-[90px] ml-2"
+            >Không hoạt động</fwb-badge
+          >
+          <fwb-badge
+            v-else="device.statusId === 3"
+            type="yellow"
+            class="w-[90px] ml-2"
+            >Cần được bảo trì</fwb-badge
+          >
         </td>
 
         <td class="text-center border">

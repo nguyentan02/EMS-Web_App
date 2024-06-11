@@ -210,7 +210,7 @@ class UserService {
     }
   }
 }
-cron.schedule("*/15 * * * *", async function () {
+cron.schedule("*/5 * * * *", async function () {
   const currentTime = new Date();
   const req = await prisma.user.findMany({
     where: {
@@ -232,6 +232,6 @@ cron.schedule("*/15 * * * *", async function () {
     });
   }
   console.log(req);
-  console.log("running a task every 15 seconds");
+  console.log("running a task every 5 min");
 });
 module.exports = UserService;

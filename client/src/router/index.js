@@ -23,6 +23,16 @@ const routes = [
         name: "test",
         component: () => import("../components/ManagerDevice.vue"),
       },
+      {
+        path: "/Using",
+        name: "Using",
+        component: () => import("../components/UsingManager.vue"),
+      },
+      {
+        path: "/Historytransfer",
+        name: "historytransfer",
+        component: () => import("../components/HistoryTransferVue.vue"),
+      },
     ],
   },
   {
