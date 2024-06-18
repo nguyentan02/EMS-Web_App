@@ -22,6 +22,21 @@ export const roomStore = defineStore("location", () => {
       err.value = error.message;
     }
   };
+  const getDeparment = async () => {
+    err.value = null;
 
-  return { result, err, getRooms };
+    try {
+      let deparments = await roomService.getDeparment();
+
+      // const deparments = testr.map((res) => ({
+      //   value: res.id,
+      //   name: res.deparment_name,
+      // }));
+      return deparments;
+    } catch (error) {
+      err.value = error.message;
+    }
+  };
+
+  return { result, err, getRooms, getDeparment };
 });

@@ -84,16 +84,17 @@ model HistoryTransfer {
 }
 
 model UsageHistory {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   deviceId    Int
   user        String
   roomId      Int
-  usage_start DateTime @default(now())
+  usage_start DateTime  @default(now())
   usage_end   DateTime
+  end         DateTime?
   purpose     String?
-
-  Device  Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  History History[]
+  isHidden    Boolean   @default(false)
+  Device      Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  History     History[]
 }
 
 model History {

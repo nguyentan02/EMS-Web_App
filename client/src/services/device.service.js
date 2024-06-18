@@ -9,6 +9,12 @@ class deviceService {
   async getAllDevices() {
     return (await this.api.get("/getDevices")).data;
   }
+  async getAllDevicesNoActive() {
+    return (await this.api.get("/getNoActive")).data;
+  }
+  async deleteDevice(id) {
+    return (await this.api.delete(`/${id}`)).data;
+  }
   async updateDevice(data) {
     return (await this.api.put("/update", data)).data;
   }

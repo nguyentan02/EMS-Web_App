@@ -1,24 +1,38 @@
 const { PrismaClient } = require("@prisma/client");
 const ApiRes = require("../utils/api-res");
+
 const cron = require("node-cron");
 const prisma = new PrismaClient();
 
 class UsageHistory {
   async createUsing(deviceId, user, roomId, usage_start, usage_end, purpose) {
     try {
-      const extingDevice = await prisma.usageHistory.findFirst({
-        where: {
-          deviceId: deviceId,
-        },
-      });
-      if (extingDevice) {
-        return new ApiRes(400, "failed", "Thiết bị đã được sử dụng ", null);
-      }
       // const durationInSeconds = Math.round(
       //   (new Date(usage_end) - new Date(usage_start)) / 1000
       // );
       // console.log(durationInSeconds);
+      if (!roomId) {
+        return new ApiRes(
+          401,
+          "warning",
+          "Vui lòng chọn phòng đặt thiết bị ",
+          null
+        );
+      }
+      // const today = new Date();
+      // today.setHours(0, 0, 0, 0); // Set time to midnight
 
+      // const startDate = new Date(usage_start);
+      // startDate.setHours(0, 0, 0, 0); // Set time to midnight
+
+      // if (startDate < today) {
+      //   return new ApiRes(
+      //     400,
+      //     "failed",
+      //     "Ngày bắt đầu phải bằng hoặc lớn hơn ngày hiện tại",
+      //     null
+      //   );
+      // }
       const newUsing = await prisma.usageHistory.create({
         data: {
           Device: {
@@ -37,6 +51,11 @@ class UsageHistory {
         where: { id: deviceId },
         data: { statusId: 2, roomId: roomId },
       });
+      await prisma.history.create({
+        data: {
+          usageId: newUsing.id,
+        },
+      });
       return new ApiRes(
         201,
         "success",
@@ -44,7 +63,7 @@ class UsageHistory {
         newUsing
       );
     } catch (error) {
-      console.log(error);
+      return new ApiRes(500, "error", "Thêm mới không thành công", null);
     }
   }
   async updateUsing(idUsage, user, usage_start, usage_end, purpose) {
@@ -57,18 +76,18 @@ class UsageHistory {
           user: user,
           usage_start: new Date(usage_start),
           usage_end: new Date(usage_end),
-
           purpose: purpose,
         },
       });
       return new ApiRes(201, "success", "Cập nhật thành công", updateUsing);
     } catch (error) {
-      console.log(error);
+      return new ApiRes(500, "error", "Cập nhật không thành công", null);
     }
   }
   async getAllUsing() {
     try {
       const getAll = await prisma.usageHistory.findMany({
+        where: { isHidden: false },
         include: {
           Device: {
             select: {
@@ -95,6 +114,30 @@ class UsageHistory {
       return new ApiRes(500, "error", "Internal server error", null);
     }
   }
+  async getAllUsingTrue() {
+    try {
+      const getAll = await prisma.usageHistory.findMany({
+        include: {
+          Device: {
+            select: {
+              name: true,
+              serial_number: true,
+              Category: true,
+              statusId: true,
+              Room: {
+                include: {
+                  deparment: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      return new ApiRes(201, "success", "Các thiết bị đã được sử dụng", getAll);
+    } catch (error) {
+      return new ApiRes(500, "error", "Internal server error", null);
+    }
+  }
   async deleteUsing(id) {
     try {
       console.log(id);
@@ -102,20 +145,33 @@ class UsageHistory {
         where: {
           id: +id,
         },
+        include: {
+          Device: {
+            select: {
+              id: true,
+            },
+          },
+        },
       });
+      console.log(extingUsage);
       if (!extingUsage) {
         return new ApiRes(400, "failed", "Không tồn tại", null);
       }
-      const deleteUsing = await prisma.usageHistory.delete({
-        where: {
-          id: +id,
-        },
-      });
-      await prisma.device.update({
+      const deleteUsing = await prisma.usageHistory.update({
         where: {
           id: +id,
         },
         data: {
+          isHidden: true,
+          end: new Date(),
+        },
+      });
+      await prisma.device.update({
+        where: {
+          id: extingUsage.Device.id,
+        },
+        data: {
+          roomId: 10,
           statusId: 1,
         },
       });

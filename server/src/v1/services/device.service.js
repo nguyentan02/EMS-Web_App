@@ -101,10 +101,66 @@ class DeviceService {
       console.log(error);
     }
   }
-
+  async deleteDevice(id) {
+    try {
+      const deviceActive = await prisma.device.findFirst({
+        where: { id: +id },
+      });
+      if (deviceActive.statusId !== 1) {
+        return new ApiRes(
+          401,
+          "failed",
+          "Thiết bị đang hoạt động không thể xoá",
+          null
+        );
+      }
+      const deleteDevice = await prisma.device.delete({
+        where: {
+          id: +id,
+        },
+      });
+      return new ApiRes(
+        201,
+        "success",
+        "Xoá thiết bị thành công",
+        deleteDevice
+      );
+    } catch (error) {
+      return new ApiRes(500, "failed", "Không thể xoá", null);
+    }
+  }
   async getAllDevice() {
     try {
       const devices = await prisma.device.findMany({
+        orderBy: {
+          purchase_date: "asc",
+        },
+        include: {
+          Room: {
+            include: {
+              deparment: true,
+            },
+          },
+          Category: true,
+        },
+      });
+
+      return new ApiRes(
+        200,
+        "success",
+        "Devices retrieved successfully",
+        devices
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getAllDeviceNoActive() {
+    try {
+      const devices = await prisma.device.findMany({
+        where: {
+          statusId: 1,
+        },
         orderBy: {
           purchase_date: "asc",
         },
@@ -144,6 +200,15 @@ class DeviceService {
         );
       }
       const oldLocationId = extRoom.roomId;
+      if (locationId === 10) {
+        await prisma.device.update({
+          where: { id: id },
+          data: {
+            roomId: 10,
+            statusId: 1,
+          },
+        });
+      }
       const transferData = await prisma.device.update({
         where: { id: id },
         data: {

@@ -8,10 +8,13 @@ import App from "./App.vue";
 import PrimeVue from "primevue/config";
 import Lara from "@/presets/lara";
 import "../node_modules/flowbite-vue/dist/index.css";
-
+import ToastService from "primevue/toastservice";
+import ConfirmationService from "primevue/confirmationservice";
 const app = createApp(App);
 
 const pinia = createPinia();
+app.use(ConfirmationService);
+app.use(ToastService);
 app.use(PrimeVue, {
   unstyled: true,
   pt: Lara, //apply preset

@@ -7,7 +7,7 @@ module.exports = {
     const usageHistoryService = new UsageHistoryService();
     const { deviceId, user, roomId, usage_start, usage_end, purpose } =
       req.body;
-    console.log(deviceId, user, roomId, usage_start, usage_end, purpose);
+
     const created = await usageHistoryService.createUsing(
       deviceId,
       user,
@@ -40,6 +40,15 @@ module.exports = {
       const usageHistoryService = new UsageHistoryService();
 
       const getAll = await usageHistoryService.getAllUsing();
+      return res.json(getAll);
+    } catch (error) {}
+    return next(new ApiError(500, error.message));
+  },
+  getAllUsingTrue: async (req, res, next) => {
+    try {
+      const usageHistoryService = new UsageHistoryService();
+
+      const getAll = await usageHistoryService.getAllUsingTrue();
       return res.json(getAll);
     } catch (error) {}
     return next(new ApiError(500, error.message));

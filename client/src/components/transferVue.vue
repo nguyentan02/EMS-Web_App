@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch, computed } from "vue";
 import { deviceStore } from "../stores/devices.store";
 
 import SearchForm from "../components/SearchForm.vue";
@@ -22,14 +22,27 @@ const useCateStore = cateStore();
 const devices = ref();
 const rooms = ref();
 const cates = ref();
+const allDeparments = ref();
+const deparments = ref();
 const $toast = useToast();
 onMounted(async () => {
   devices.value = await useDeviceStore.getAllDevices();
-  console.log(devices.value);
-  rooms.value = await useRoomStore.getRooms();
+
+  // rooms.value = await useRoomStore.getRooms();
+  allDeparments.value = await useRoomStore.getDeparment();
+  deparments.value = allDeparments.value.map((dep) => ({
+    value: dep.id,
+    name: dep.deparment_name,
+  }));
   cates.value = await useCateStore.getCate();
 });
-
+const filteredDevices = computed(() => {
+  return (
+    devices.value?.filter(
+      (device) => device.statusId !== 1 && device.roomId !== 10
+    ) ?? []
+  );
+});
 const isShowModal = ref(false);
 function closeModal() {
   isShowModal.value = false;
@@ -44,23 +57,22 @@ const editDevices = reactive({
   locationId: "",
 });
 const selected = ref();
-const cateselect = ref();
-const creDevice = reactive({
-  name: "",
-  model: "",
-  serial: "",
-  manufac: "",
-  category_id: "",
-  purchase: "",
-  price: "",
-  locationId: "",
-});
+const depselect = ref();
 watch(selected, (newValue) => {
   editDevices.locationId = newValue;
 });
-watch(cateselect, (newValue) => {
-  creDevice.category_id = newValue;
+watch(depselect, (newValue) => {
+  const selectedDepartment = allDeparments.value.find(
+    (dep) => dep.id === newValue
+  );
+  rooms.value = selectedDepartment
+    ? selectedDepartment.rooms.map((room) => ({
+        value: room.id,
+        name: room.room_name,
+      }))
+    : [];
 });
+
 const updateDevice = async () => {
   console.log(editDevices);
   await useDeviceStore.tranferDevice(editDevices);
@@ -97,7 +109,7 @@ const updateDevice = async () => {
         </th>
       </tr>
     </thead>
-    <tbody v-for="(device, i) in devices" :key="device.id">
+    <tbody v-for="(device, i) in filteredDevices" :key="device.id">
       <tr class="">
         <td class="text-center border">{{ i + 1 }}</td>
         <td class="px-3 py-3 font-medium text-gray-900 border">
@@ -111,16 +123,16 @@ const updateDevice = async () => {
         </td>
         <td class="text-center border">
           <fwb-badge
-            v-if="device.statusId === 1"
-            type="dark"
+            v-if="device.statusId === 2"
+            type="green"
             class="w-[90px] ml-2"
-            >Không hoạt động</fwb-badge
+            >Đang hoạt động</fwb-badge
           >
           <fwb-badge
             v-else="device.statusId === 3"
             type="yellow"
             class="w-[90px] ml-2"
-            >Cần được bảo trì</fwb-badge
+            >Cần bảo trì</fwb-badge
           >
         </td>
 
@@ -186,6 +198,13 @@ const updateDevice = async () => {
                   <p>
                     {{ editDevices.depar }}
                   </p>
+                </div>
+                <div class="flex align-items-center gap-3 mb-3 mr-3">
+                  <fwb-select
+                    v-model="depselect"
+                    :options="deparments"
+                    label="Khoa"
+                  />
                 </div>
                 <div class="flex align-items-center gap-3 mb-3">
                   <fwb-select

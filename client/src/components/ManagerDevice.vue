@@ -39,17 +39,27 @@ const formatCurrency = (value) => {
 
 const isShowModal = ref(false);
 const isShowModal1 = ref(false);
+const isShowModal2 = ref(false);
+const deleteDevice = ref(null);
 function closeModal() {
   isShowModal.value = false;
 }
 function closeModal1() {
   isShowModal1.value = false;
 }
+function closeModal2() {
+  isShowModal2.value = false;
+  deleteDevice.value = null;
+}
 function showModal() {
   isShowModal.value = true;
 }
 function showModal1() {
   isShowModal1.value = true;
+}
+function showModal2(deviceId) {
+  deleteDevice.value = deviceId;
+  isShowModal2.value = true;
 }
 const editDevices = reactive({
   id: "",
@@ -116,6 +126,21 @@ const createDevice = async () => {
   creDevice.purchase = "";
   creDevice.price = "";
   creDevice.location_id = "";
+};
+
+const deletedDevice = async () => {
+  console.log(deleteDevice.value);
+  await useDeviceStore.deleteDevice(deleteDevice.value);
+  if (useDeviceStore.err) {
+    $toast.error(useDeviceStore.err, { position: "top-right" });
+    closeModal2();
+    return;
+  }
+  $toast.success(useDeviceStore.result.message, {
+    position: "top-right",
+  });
+  closeModal2();
+  devices.value = await useDeviceStore.getAllDevices();
 };
 </script>
 <template>
@@ -353,7 +378,35 @@ const createDevice = async () => {
               </div>
             </template>
           </fwb-modal>
-          <fwb-button color="red" size="sm" outline>Xoá</fwb-button>
+          <fwb-button
+            @click="showModal2(device.id)"
+            color="red"
+            size="sm"
+            outline
+            >Xoá</fwb-button
+          >
+          <fwb-modal
+            size="md"
+            v-if="isShowModal2 && deleteDevice === device.id"
+            @close="closeModal2"
+          >
+            <template #header>
+              <div class="flex items-center text-lg font-semibold">
+                Xác nhận xoá
+              </div>
+            </template>
+            <template #body> <p>Bạn muốn xoá thiết bị ?</p></template>
+            <template #footer>
+              <div class="flex justify-between">
+                <fwb-button @click="closeModal2" color="alternative">
+                  Trở về
+                </fwb-button>
+                <fwb-button @click="deletedDevice(device.id)" color="red">
+                  Xoá
+                </fwb-button>
+              </div>
+            </template>
+          </fwb-modal>
         </td>
       </tr>
     </tbody>

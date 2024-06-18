@@ -76,6 +76,32 @@ module.exports = {
       console.log(error);
     }
   },
+  getAllDevicesNoActive: async (req, res, next) => {
+    try {
+      const deviceService = new DeviceService();
+      const getNoActive = await deviceService.getAllDeviceNoActive();
+      return res.json(getNoActive);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  getAllDeviceActive: async (req, res, next) => {
+    try {
+      const deviceService = new DeviceService();
+      const getActive = await deviceService.getAllDeviceActive();
+      return res.json(getActive);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  deleteDevice: async (req, res, next) => {
+    try {
+      const deviceService = new DeviceService();
+      const { id } = req.params;
+      const deleteDevice = await deviceService.deleteDevice(id);
+      return res.json(deleteDevice);
+    } catch (error) {}
+  },
   transferData: async (req, res, next) => {
     try {
       const deviceService = new DeviceService();

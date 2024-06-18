@@ -1,59 +1,67 @@
 <template>
-  <div class="card flex justify-content-center">
-    <Button
-      label="Select a Product"
-      icon="pi pi-search"
-      @click="showProducts"
-    />
-    <Toast />
-    <DynamicDialog />
+  <ConfirmDialog group="templating">
+    <template #message="slotProps">
+      <div
+        class="flex flex-col items-center w-full gap-4 border-b border-surface-200 dark:border-surface-700"
+      >
+        <i
+          :class="slotProps.message.icon"
+          class="text-6xl text-primary-500"
+        ></i>
+        <p>{{ slotProps.message.message }}</p>
+      </div>
+    </template>
+  </ConfirmDialog>
+  <div class="card flex justify-center">
+    <Button @click="showTemplate()" label="Save"></Button>
   </div>
+  <Toast />
 </template>
 
 <script setup>
-import { markRaw, defineAsyncComponent } from "vue";
-import { useDialog } from "primevue/usedialog";
-import { useToast } from "primevue/usetoast";
-import Button from "primevue/button";
-const ProductListDemo = defineAsyncComponent(() =>
-  import("./components/ProductListDemo.vue")
-);
-const FooterDemo = defineAsyncComponent(() =>
-  import("./components/FooterDemo.vue")
-);
+import { useConfirm } from "primevue/useconfirm";
 
-const dialog = useDialog();
+import Toast from "primevue/toast";
+
+import { useToast } from "primevue/usetoast";
+
+import ConfirmDialog from "primevue/confirmdialog";
+import Button from "primevue/button";
+const confirm = useConfirm();
 const toast = useToast();
 
-const showProducts = () => {
-  const dialogRef = dialog.open(ProductListDemo, {
-    props: {
-      header: "Product List",
-      style: {
-        width: "50vw",
-      },
-      breakpoints: {
-        "960px": "75vw",
-        "640px": "90vw",
-      },
-      modal: true,
+const showTemplate = () => {
+  confirm.require({
+    group: "templating",
+    header: "Confirmation",
+    message: "Please confirm to proceed moving forward.",
+    icon: "pi pi-exclamation-circle",
+    rejectProps: {
+      label: "Cancel",
+      icon: "pi pi-times",
+      outlined: true,
+      size: "small",
     },
-    templates: {
-      footer: markRaw(FooterDemo),
+    acceptProps: {
+      label: "Save",
+      icon: "pi pi-check",
+      size: "small",
     },
-    onClose: (options) => {
-      const data = options.data;
-      if (data) {
-        const buttonType = data.buttonType;
-        const summary_and_detail = buttonType
-          ? {
-              summary: "No Product Selected",
-              detail: `Pressed '${buttonType}' button`,
-            }
-          : { summary: "Product Selected", detail: data.name };
-
-        toast.add({ severity: "info", ...summary_and_detail, life: 3000 });
-      }
+    accept: () => {
+      toast.add({
+        severity: "info",
+        summary: "Confirmed",
+        detail: "You have accepted",
+        life: 3000,
+      });
+    },
+    reject: () => {
+      toast.add({
+        severity: "error",
+        summary: "Rejected",
+        detail: "You have rejected",
+        life: 3000,
+      });
     },
   });
 };

@@ -33,12 +33,22 @@ const routes = [
         name: "historytransfer",
         component: () => import("../components/HistoryTransferVue.vue"),
       },
+      {
+        path: "/HistoryUsing",
+        name: "HistoryUsing",
+        component: () => import("../components/HistoryUsing.vue"),
+      },
     ],
   },
   {
     path: "/login",
     name: "login",
     component: () => import("@/views/LoginView.vue"),
+  },
+  {
+    path: "/test11",
+    name: "test11",
+    component: () => import("../components/test.vue"),
   },
   {
     path: "/admin",

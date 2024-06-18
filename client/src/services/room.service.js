@@ -6,6 +6,9 @@ class roomService {
   async getRooms() {
     return (await this.api.get("/rooms")).data;
   }
+  async getDeparment() {
+    return (await this.api.get("/deparments")).data;
+  }
 }
 
 export default new roomService();

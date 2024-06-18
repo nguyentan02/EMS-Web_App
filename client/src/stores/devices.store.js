@@ -30,6 +30,17 @@ export const deviceStore = defineStore("device", () => {
       err.value = error.message;
     }
   };
+  const getAllDevicesNoActive = async () => {
+    err.value = null;
+    devices.value = null;
+    try {
+      let res = await deviceService.getAllDevicesNoActive();
+      if (res.code !== 200) throw new Error(res.message);
+      return (devices.value = res.data);
+    } catch (error) {
+      err.value = error.message;
+    }
+  };
   const updateDevice = async (data) => {
     err.value = null;
     result.value = null;
@@ -37,6 +48,17 @@ export const deviceStore = defineStore("device", () => {
       let update = await deviceService.updateDevice(data);
       if (update.code !== 201) throw new Error(update.message);
       result.value = update;
+    } catch (error) {
+      err.value = error.message;
+    }
+  };
+  const deleteDevice = async (id) => {
+    err.value = null;
+    result.value = null;
+    try {
+      let deleted = await deviceService.deleteDevice(id);
+      if (deleted.code !== 201) throw new Error(deleted.message);
+      result.value = deleted;
     } catch (error) {
       err.value = error.message;
     }
@@ -73,5 +95,7 @@ export const deviceStore = defineStore("device", () => {
     createDeive,
     tranferDevice,
     getHistoryTrans,
+    deleteDevice,
+    getAllDevicesNoActive,
   };
 });

@@ -8,4 +8,6 @@ router.post("/create", usageController.createUsing);
 router.put("/update", usageController.updateUsing);
 router.delete("/delete/:id", usageController.deleteUsing);
 router.get("/getAll", usageController.getAllUsing);
+
+router.get("/getAllTrue", usageController.getAllUsingTrue);
 module.exports = router;
