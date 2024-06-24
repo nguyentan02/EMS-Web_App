@@ -1,75 +1,121 @@
 <script setup>
-import { ref, onMounted, reactive, watch } from "vue";
-import { deviceStore } from "../stores/devices.store";
+import { ref, onMounted } from "vue";
+import { useToast } from "primevue/usetoast";
 
+import { deviceStore } from "../stores/devices.store";
+import { usageStore } from "@/stores/usage.store";
 import SearchForm from "../components/SearchForm.vue";
-import { roomStore } from "@/stores/room.store";
-import { cateStore } from "@/stores/category.store";
-import { FwbButton, FwbModal, FwbInput, FwbSelect } from "flowbite-vue";
-import { useToast } from "vue-toast-notification";
+import Column from "primevue/column";
+import Toast from "primevue/toast";
+import DataTable from "primevue/datatable";
 
 import dayjs from "dayjs";
 
 const useHistoryStore = deviceStore();
-const useRoomStore = roomStore();
-const useCateStore = cateStore();
-const historys = ref();
-const rooms = ref();
-const cates = ref();
-const $toast = useToast();
+
+const expandedRows = ref();
+const useUsageStore = usageStore();
+const historys = ref([]);
+const filteredUsages = ref([]);
+const paginatedUsages = ref([]);
+const first = ref(0);
+const rowsPerPage = ref(4);
+const totalRecords = ref(0);
+const toast = useToast();
+
+const handleSearch = (search) => {
+  if (search) {
+    filteredUsages.value = historys.value.filter((device) =>
+      device.name.toLowerCase().includes(search.toLowerCase())
+    );
+  } else {
+    filteredUsages.value = historys.value;
+  }
+  updatePagination();
+};
+
+const updatePagination = () => {
+  totalRecords.value = filteredUsages.value.length;
+  paginatedUsages.value = filteredUsages.value.slice(
+    first.value,
+    first.value + rowsPerPage.value
+  );
+};
+
+const onPage = (event) => {
+  first.value = event.first;
+  rowsPerPage.value = event.rows;
+  updatePagination();
+};
+
 onMounted(async () => {
   historys.value = await useHistoryStore.getHistoryTrans();
+  filteredUsages.value = historys.value;
+  console.log(filteredUsages.value);
+  updatePagination();
 });
+
+const formatDate = (date) => {
+  return dayjs(date).format("DD/MM/YYYY HH:MM:ss");
+};
 </script>
 <template>
-  <div class="flex justify-between items-center pt-3 pb-3">
-    <h1 class="text-xl font-bold pl-4">Danh sách thiết bị</h1>
+  <div>
+    <h1 class="text-xl font-bold pl-4">Lịch sử luân chuyển của các thiết bị</h1>
   </div>
-  <hr />
-  <div class="flex justify-between">
-    <SearchForm />
+  <SearchForm @search="handleSearch" />
+
+  <div v-if="filteredUsages.length > 0" class="card">
+    <DataTable
+      v-model:expandedRows="expandedRows"
+      :value="paginatedUsages"
+      lazy
+      paginator
+      :first="first"
+      :rows="rowsPerPage"
+      :totalRecords="totalRecords"
+      dataKey="id"
+      tableStyle="min-width: 60rem"
+      @page="onPage"
+    >
+      <Column expander style="width: 5rem" />
+      <Column field="name" header="Tên thiết bị"></Column>
+      <Column field="model" header="Model"> </Column>
+      <Column field="serial_number" header="Serial"></Column>
+      <Column field="Category.name" header="Loại thiết bị"> </Column>
+      <template #expansion="slotProps">
+        <div class="p-2">
+          <h5 class="font-semibold">
+            Lịch sử luân chuyển của {{ slotProps.data.name }}
+          </h5>
+          <DataTable :value="slotProps.data.HistoryTransfer">
+            <Column field="deviceId" header="Id" class="border"></Column>
+            <Column header="Phòng / Khoa Cũ">
+              <template #body="slotProps">
+                <span>
+                  {{ slotProps.data.OldRoom.room_name }} /
+                  {{ slotProps.data.OldRoom.deparment.deparment_name }}
+                </span>
+              </template>
+            </Column>
+            <Column field="user" header="Phòng / Khoa mới">
+              <template #body="slotProps">
+                <span>
+                  {{ slotProps.data.NewRoom.room_name }} /
+                  {{ slotProps.data.NewRoom.deparment.deparment_name }}
+                </span>
+              </template>
+            </Column>
+            <Column field="usage_start" header="Thời gian luân chuyển">
+              <template #body="slotProps">
+                {{ formatDate(slotProps.data.transferDate) }}
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </template>
+    </DataTable>
+    <Toast />
   </div>
-
-  <table class="w-full text-sm text-left text-gray-700">
-    <thead class="text-xs text-gray-700 bg-gray-50">
-      <tr>
-        <th class="text-center border px-4 py-3">STT</th>
-        <th class="text-center border px-4 py-3">Tên Thiết Bị</th>
-        <th class="text-center border px-4 py-3">Model</th>
-        <th class="text-center border px-4 py-3">Số seri</th>
-
-        <th class="text-center border px-4 py-3">Trạng thái</th>
-        <th class="text-center border px-4 py-3">Phòng / Khoa Cũ</th>
-        <th class="text-center border px-4 py-3">Phòng / Khoa Mới</th>
-        <th class="text-center border px-4 py-3">
-          <span class="">Thời gian luân chuyển</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody v-for="(history, i) in historys" :key="history.id">
-      <tr class="">
-        <td class="text-center border">{{ i + 1 }}</td>
-        <td class="px-3 py-3 font-medium text-gray-900 border">
-          {{ history.Device.name }}
-        </td>
-        <td class="text-center border">{{ history.Device.model }}</td>
-        <td class="text-center border">{{ history.Device.serial_number }}</td>
-        <td class="text-center border">
-          <p>Không hoạt động</p>
-        </td>
-
-        <td class="text-center border">
-          {{ history.OldRoom.room_name }} /
-          {{ history.OldRoom.deparment.deparment_name }}
-        </td>
-        <td class="text-center border">
-          {{ history.NewRoom.room_name }} /
-          {{ history.NewRoom.deparment.deparment_name }}
-        </td>
-        <td class="text-center border">
-          {{ dayjs(history.transferDate).format("DD/MM/YYYY HH:mm:ss") }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div v-else class="no-results-message">Không tìm thấy kết quả phù hợp.</div>
 </template>

@@ -82,7 +82,7 @@
             </svg>
             Luân chuyển thiết bị</router-link
           >
-
+          <Material />
           <dropDown />
         </div>
       </nav>
@@ -167,6 +167,7 @@ import { useToast } from "vue-toast-notification";
 import { useUserStore } from "../stores/user.store";
 import { useAuthStore } from "../stores/auth.store";
 import dropDown from "../components/DropDown.vue";
+import Material from "../components/MaterialDropDown.vue";
 import { ref } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import {

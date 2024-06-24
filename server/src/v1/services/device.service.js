@@ -12,8 +12,7 @@ class DeviceService {
     purchase,
     price,
     status_id,
-    category_id,
-    location_id
+    category_id
   ) {
     try {
       const extSerial = await prisma.device.findFirst({
@@ -35,8 +34,6 @@ class DeviceService {
           price: +price,
           statusId: Number(1),
           categoryId: category_id,
-          //   qr_code: qr_code,
-          roomId: 10,
         },
       });
       return new ApiRes(201, "success", "Tạo thiết bị thành công", {
@@ -56,8 +53,7 @@ class DeviceService {
     purchase,
     price,
     status_id,
-    category_id,
-    location_id
+    category_id
   ) {
     try {
       const device = await prisma.device.findUnique({
@@ -90,7 +86,6 @@ class DeviceService {
           status_id: status_id,
           categoryId: category_id,
           //   qr_code: qr_code,
-          roomId: location_id,
         },
       });
 
@@ -126,7 +121,7 @@ class DeviceService {
         deleteDevice
       );
     } catch (error) {
-      return new ApiRes(500, "failed", "Không thể xoá", null);
+      return new ApiRes(500, "failed", "Không thể xoá", error);
     }
   }
   async getAllDevice() {
@@ -136,11 +131,6 @@ class DeviceService {
           purchase_date: "asc",
         },
         include: {
-          Room: {
-            include: {
-              deparment: true,
-            },
-          },
           Category: true,
         },
       });
@@ -165,11 +155,6 @@ class DeviceService {
           purchase_date: "asc",
         },
         include: {
-          Room: {
-            include: {
-              deparment: true,
-            },
-          },
           Category: true,
         },
       });
@@ -185,9 +170,9 @@ class DeviceService {
     }
   }
 
-  async transferDevice(id, locationId) {
+  async transferDevice(id, deviceId, locationId) {
     try {
-      const extRoom = await prisma.device.findUnique({
+      const extRoom = await prisma.usageHistory.findUnique({
         where: { id: id },
         select: { roomId: true },
       });
@@ -200,23 +185,16 @@ class DeviceService {
         );
       }
       const oldLocationId = extRoom.roomId;
-      if (locationId === 10) {
-        await prisma.device.update({
-          where: { id: id },
-          data: {
-            roomId: 10,
-            statusId: 1,
-          },
-        });
-      }
-      const transferData = await prisma.device.update({
+
+      const transferData = await prisma.usageHistory.update({
         where: { id: id },
         data: {
           roomId: locationId,
         },
       });
 
-      await this.createHistory(id, oldLocationId, locationId);
+      await this.createHistory(deviceId, oldLocationId, locationId);
+
       return new ApiRes(
         201,
         "success",
@@ -224,6 +202,7 @@ class DeviceService {
         transferData
       );
     } catch (error) {
+      console.log(error);
       return new ApiRes(500, "failed", "Đã xảy ra lỗi", error);
     }
   }
@@ -243,24 +222,30 @@ class DeviceService {
   }
   async getHistoryTransfer() {
     try {
-      const history = await prisma.historyTransfer.findMany({
-        include: {
-          Device: {
-            select: {
-              name: true,
-              model: true,
-              serial_number: true,
-              statusId: true,
-            },
+      const history = await prisma.device.findMany({
+        where: {
+          HistoryTransfer: {
+            some: {},
           },
-          OldRoom: {
+        },
+        select: {
+          id: true,
+          name: true,
+          model: true,
+          serial_number: true,
+          Category: true,
+          HistoryTransfer: {
             include: {
-              deparment: true,
-            },
-          },
-          NewRoom: {
-            include: {
-              deparment: true,
+              OldRoom: {
+                include: {
+                  deparment: true,
+                },
+              },
+              NewRoom: {
+                include: {
+                  deparment: true,
+                },
+              },
             },
           },
         },

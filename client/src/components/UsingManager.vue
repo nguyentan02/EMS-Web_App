@@ -122,7 +122,7 @@ watch(depselect, (newValue) => {
 });
 
 const handleSelectDevice = (deviceId) => {
-  creDevice.deviceId = deviceId; // Set the selected device ID to creDevice.deviceId
+  creDevice.deviceId = deviceId;
 };
 const createDevice = async () => {
   if (!creDevice.deviceId || !creDevice.user) {
@@ -141,12 +141,7 @@ const createDevice = async () => {
     });
     return;
   }
-  if (creDevice.usage_start == "" || creDevice.usage_end == "") {
-    $toast.warning("Vui lòng chọn ngày bắt đầu và hết hạn", {
-      position: "top-right",
-    });
-    return;
-  }
+
   $toast.success("Thiết bị đã được đưa vào sử dụng", {
     position: "top-right",
   });
@@ -184,11 +179,11 @@ const selectedRoom = ref("");
 const filteredUsages = ref([]);
 watch(selectedDepartment, (newValue) => {
   if (newValue === "all") {
-    rooms.value = [];
+    allRooms.value = [];
     selectedRoom.value = null;
   } else {
     const department = allDeparments.value.find((dep) => dep.id === newValue);
-    rooms.value = [{ value: "all", name: "Tất cả phòng" }].concat(
+    allRooms.value = [{ value: "all", name: "Tất cả phòng" }].concat(
       department
         ? department.rooms.map((room) => ({
             value: room.id,
@@ -209,11 +204,11 @@ function applyFilters() {
     const roomMatches =
       selectedRoom.value === "all" ||
       !selectedRoom.value ||
-      usage.Device.Room.id === selectedRoom.value;
+      usage.Room.id === selectedRoom.value;
     const departmentMatches =
       selectedDepartment.value === "all" ||
       !selectedDepartment.value ||
-      usage.Device.Room.deparment_id === selectedDepartment.value;
+      usage.Room.deparment_id === selectedDepartment.value;
     return roomMatches && departmentMatches;
   });
 }
@@ -286,12 +281,12 @@ function formatDuration(startTime) {
               class="h-[30px]"
             />
           </div>
-          <div class="flex align-items-center gap-3 mb-3">
+          <!-- <div class="flex align-items-center gap-3 mb-3">
             <label for="name" class="font-semibold w-6rem mr-7"
               >Ngày hết hạn:</label
             >
             <input v-model="creDevice.usage_end" type="date" class="h-[30px]" />
-          </div>
+          </div> -->
           <fwb-textarea
             v-model="creDevice.message"
             :rows="4"
@@ -326,7 +321,7 @@ function formatDuration(startTime) {
       />
       <fwb-select
         v-model="selectedRoom"
-        :options="rooms"
+        :options="allRooms"
         label="Phòng"
         placeholder="Chọn phòng"
       />
@@ -352,7 +347,7 @@ function formatDuration(startTime) {
         <th class="text-center border px-4 py-3">Phòng / Khoa</th>
         <th class="text-center border px-4 py-3">Người sử dụng</th>
         <th class="text-center border px-4 py-3">Ngày bắt đầu</th>
-        <th class="text-center border px-4 py-3">Ngày hết hạn</th>
+        <!-- <th class="text-center border px-4 py-3">Ngày hết hạn</th> -->
         <th class="text-center border px-4 py-3">Thời gian đã sử dụng</th>
         <th class="text-center border px-4 py-3">
           <span class="">Hành động</span>
@@ -382,15 +377,15 @@ function formatDuration(startTime) {
             v-else="usage.Device.statusId === 3"
             type="yellow"
             class="w-[90px] ml-2"
-            >Cần bảo trì</fwb-badge
+            >Đang bảo trì</fwb-badge
           >
         </td>
         <td class="text-center border">
           {{ usage.Device.Category.name }}
         </td>
         <td class="text-center border">
-          {{ usage.Device.Room.room_name }} /
-          {{ usage.Device.Room.deparment.deparment_name }}
+          {{ usage.Room.room_name }} /
+          {{ usage.Room.deparment.deparment_name }}
         </td>
         <td class="text-center border">
           {{ usage.user }}
@@ -398,12 +393,11 @@ function formatDuration(startTime) {
         <td class="text-center border">
           {{ dayjs(usage.usage_start).format("DD/MM/YYYY") }}
         </td>
-        <td class="text-center border">
+        <!-- <td class="text-center border">
           {{ dayjs(usage.usage_end).format("DD/MM/YYYY") }}
-        </td>
+        </td> -->
         <td class="text-center border">
-          <!-- {{ formatDuration(usage.usage_start) }} -->
-          Null
+          {{ formatDuration(usage.usage_start) }}
         </td>
         <td class="text-center border">
           <fwb-button
@@ -414,9 +408,7 @@ function formatDuration(startTime) {
                 editDevices.usage_start = dayjs(usage.usage_start).format(
                   'YYYY-MM-DD'
                 );
-                editDevices.usage_end = dayjs(usage.usage_end).format(
-                  'YYYY-MM-DD'
-                );
+
                 editDevices.message = usage.message;
                 showModal();
               }
@@ -466,7 +458,7 @@ function formatDuration(startTime) {
                   class="h-[30px]"
                 />
               </div>
-              <div class="flex align-items-center gap-3 mb-3">
+              <!-- <div class="flex align-items-center gap-3 mb-3">
                 <label for="name" class="font-semibold w-6rem mr-9"
                   >Ngày hết hạn:</label
                 >
@@ -475,7 +467,7 @@ function formatDuration(startTime) {
                   type="date"
                   class="h-[30px]"
                 />
-              </div>
+              </div> -->
               <div class="text-start">
                 <fwb-textarea
                   v-model="creDevice.message"

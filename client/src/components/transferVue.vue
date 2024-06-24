@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive, watch, computed } from "vue";
 import { deviceStore } from "../stores/devices.store";
+import { usageStore } from "@/stores/usage.store";
 
 import SearchForm from "../components/SearchForm.vue";
 import { roomStore } from "@/stores/room.store";
@@ -17,6 +18,8 @@ import { useToast } from "vue-toast-notification";
 import dayjs from "dayjs";
 
 const useDeviceStore = deviceStore();
+const useUsageStore = usageStore();
+
 const useRoomStore = roomStore();
 const useCateStore = cateStore();
 const devices = ref();
@@ -26,14 +29,16 @@ const allDeparments = ref();
 const deparments = ref();
 const $toast = useToast();
 onMounted(async () => {
-  devices.value = await useDeviceStore.getAllDevices();
-
+  devices.value = await useUsageStore.getAllUsages();
+  console.log(devices.value);
   // rooms.value = await useRoomStore.getRooms();
   allDeparments.value = await useRoomStore.getDeparment();
-  deparments.value = allDeparments.value.map((dep) => ({
-    value: dep.id,
-    name: dep.deparment_name,
-  }));
+  deparments.value = allDeparments.value
+    .filter((dep) => dep.id !== 10)
+    .map((dep) => ({
+      value: dep.id,
+      name: dep.deparment_name,
+    }));
   cates.value = await useCateStore.getCate();
 });
 const filteredDevices = computed(() => {
@@ -53,6 +58,7 @@ function showModal() {
 }
 
 const editDevices = reactive({
+  deviceId: "",
   id: "",
   locationId: "",
 });
@@ -74,11 +80,18 @@ watch(depselect, (newValue) => {
 });
 
 const updateDevice = async () => {
-  console.log(editDevices);
   await useDeviceStore.tranferDevice(editDevices);
+  if (useDeviceStore.err) {
+    $toast.error(useDeviceStore.err, { position: "top-right" });
+    return;
+  }
+  $toast.success(useDeviceStore.result.message, {
+    position: "top-right",
+  });
   closeModal();
-  devices.value = await useDeviceStore.getAllDevices();
+  devices.value = await useUsageStore.getAllUsages();
   selected.value = "";
+  depselect.value = "";
 };
 </script>
 <template>
@@ -113,23 +126,23 @@ const updateDevice = async () => {
       <tr class="">
         <td class="text-center border">{{ i + 1 }}</td>
         <td class="px-3 py-3 font-medium text-gray-900 border">
-          {{ device.name }}
+          {{ device.Device.name }}
         </td>
         <td class="text-center border">
-          {{ device.model }}
+          {{ device.Device.model }}
         </td>
         <td class="text-center border">
-          {{ device.serial_number }}
+          {{ device.Device.serial_number }}
         </td>
         <td class="text-center border">
           <fwb-badge
-            v-if="device.statusId === 2"
+            v-if="device.Device.statusId === 2"
             type="green"
             class="w-[90px] ml-2"
             >Đang hoạt động</fwb-badge
           >
           <fwb-badge
-            v-else="device.statusId === 3"
+            v-else="device.Device.statusId === 3"
             type="yellow"
             class="w-[90px] ml-2"
             >Cần bảo trì</fwb-badge
@@ -139,15 +152,16 @@ const updateDevice = async () => {
         <td class="text-center border">
           {{ device.Room.room_name }}/{{ device.Room.deparment.deparment_name }}
         </td>
-        <td class="text-center border">{{ device.Category.name }}</td>
+        <td class="text-center border">{{ device.Device.Category.name }}</td>
         <td class="text-center border">
           <fwb-button
             @click="
               () => {
                 editDevices.id = device.id;
-                editDevices.name = device.name;
-                editDevices.model = device.model;
-                editDevices.serial = device.serial_number;
+                editDevices.deviceId = device.deviceId;
+                editDevices.name = device.Device.name;
+                editDevices.model = device.Device.model;
+                editDevices.serial = device.Device.serial_number;
                 editDevices.room = device.Room.room_name;
                 editDevices.depar = device.Room.deparment.deparment_name;
                 showModal();

@@ -11,7 +11,7 @@
     >
       <DataTable
         v-model:selection="selectedProduct"
-        :value="products"
+        :value="filteredDevices"
         selectionMode="single"
         :paginator="true"
         :rows="5"
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 
@@ -68,11 +68,14 @@ const toast = useToast();
 const useDeviceStore = deviceStore();
 const op = ref();
 const products = ref();
+
 const selectedProduct = ref();
 onMounted(async () => {
-  products.value = await useDeviceStore.getAllDevicesNoActive();
+  products.value = await useDeviceStore.getAllDevices();
 });
-
+const filteredDevices = computed(() => {
+  return products.value?.filter((device) => device.statusId === 1) ?? [];
+});
 const onProductSelect = (event) => {
   visible.value = false;
   emit("selectDevice", event.data.id);

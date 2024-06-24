@@ -16,7 +16,6 @@ module.exports = {
         price,
         status_id,
         category_id,
-        location_id,
       } = req.body;
 
       const createdDevice = await deviceService.createDevice(
@@ -27,8 +26,7 @@ module.exports = {
         purchase,
         price,
         status_id,
-        category_id,
-        location_id
+        category_id
       );
       return res.json(createdDevice);
     } catch (error) {}
@@ -46,7 +44,6 @@ module.exports = {
         price,
         status_id,
         category_id,
-        location_id,
       } = req.body;
 
       const updatedDevice = await deviceService.updateDevice(
@@ -58,8 +55,7 @@ module.exports = {
         purchase,
         price,
         status_id,
-        category_id,
-        location_id
+        category_id
       );
 
       return res.json(updatedDevice);
@@ -105,9 +101,13 @@ module.exports = {
   transferData: async (req, res, next) => {
     try {
       const deviceService = new DeviceService();
-      const { id, locationId } = req.body;
-      console.log(id, locationId);
-      const tranfer = await deviceService.transferDevice(id, locationId);
+      const { id, deviceId, locationId } = req.body;
+      console.log(id, deviceId, locationId);
+      const tranfer = await deviceService.transferDevice(
+        id,
+        deviceId,
+        locationId
+      );
       return res.json(tranfer);
     } catch (error) {
       console.log(error);

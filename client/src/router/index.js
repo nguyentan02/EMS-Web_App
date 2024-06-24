@@ -36,7 +36,22 @@ const routes = [
       {
         path: "/HistoryUsing",
         name: "HistoryUsing",
-        component: () => import("../components/HistoryUsing.vue"),
+        component: () => import("../components/HistoryUsing2.vue"),
+      },
+      {
+        path: "/ListMaterial",
+        name: "ListMaterial",
+        component: () => import("../components/ListMaterial.vue"),
+      },
+      {
+        path: "/Order",
+        name: "Order",
+        component: () => import("../components/Order.vue"),
+      },
+      {
+        path: "/materialsWarehouse",
+        name: "materialsWarehouse",
+        component: () => import("../components/materialsWarehouse.vue"),
       },
     ],
   },
@@ -45,11 +60,7 @@ const routes = [
     name: "login",
     component: () => import("@/views/LoginView.vue"),
   },
-  {
-    path: "/test11",
-    name: "test11",
-    component: () => import("../components/test.vue"),
-  },
+
   {
     path: "/admin",
     name: "admin",

@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const ApiRes = require("../utils/api-res");
 
-const cron = require("node-cron");
+// const cron = require("node-cron");
 const prisma = new PrismaClient();
 
 class UsageHistory {
@@ -19,20 +19,6 @@ class UsageHistory {
           null
         );
       }
-      // const today = new Date();
-      // today.setHours(0, 0, 0, 0); // Set time to midnight
-
-      // const startDate = new Date(usage_start);
-      // startDate.setHours(0, 0, 0, 0); // Set time to midnight
-
-      // if (startDate < today) {
-      //   return new ApiRes(
-      //     400,
-      //     "failed",
-      //     "Ngày bắt đầu phải bằng hoặc lớn hơn ngày hiện tại",
-      //     null
-      //   );
-      // }
       const newUsing = await prisma.usageHistory.create({
         data: {
           Device: {
@@ -40,16 +26,21 @@ class UsageHistory {
           },
           // deviceId: deviceId,
           user: user,
-          roomId: roomId,
+          Room: {
+            connect: { id: roomId },
+          },
           usage_start: new Date(usage_start),
-          usage_end: new Date(usage_end),
+          // usage_end: new Date(usage_end),
           purpose: purpose,
         },
       });
-
       await prisma.device.update({
-        where: { id: deviceId },
-        data: { statusId: 2, roomId: roomId },
+        where: {
+          id: deviceId,
+        },
+        data: {
+          statusId: 2,
+        },
       });
       await prisma.history.create({
         data: {
@@ -63,6 +54,7 @@ class UsageHistory {
         newUsing
       );
     } catch (error) {
+      console.log(error);
       return new ApiRes(500, "error", "Thêm mới không thành công", null);
     }
   }
@@ -75,13 +67,13 @@ class UsageHistory {
         data: {
           user: user,
           usage_start: new Date(usage_start),
-          usage_end: new Date(usage_end),
+          // usage_end: new Date(usage_end),
           purpose: purpose,
         },
       });
       return new ApiRes(201, "success", "Cập nhật thành công", updateUsing);
     } catch (error) {
-      return new ApiRes(500, "error", "Cập nhật không thành công", null);
+      return new ApiRes(500, "error", "Cập nhật không thành công", error);
     }
   }
   async getAllUsing() {
@@ -91,15 +83,17 @@ class UsageHistory {
         include: {
           Device: {
             select: {
+              id: true,
               name: true,
+              model: true,
               serial_number: true,
               Category: true,
               statusId: true,
-              Room: {
-                include: {
-                  deparment: true,
-                },
-              },
+            },
+          },
+          Room: {
+            include: {
+              deparment: true,
             },
           },
         },
@@ -111,7 +105,8 @@ class UsageHistory {
         getAll
       );
     } catch (error) {
-      return new ApiRes(500, "error", "Internal server error", null);
+      console.log(error);
+      return new ApiRes(500, "error", "Internal server error", error);
     }
   }
   async getAllUsingTrue() {
@@ -124,18 +119,18 @@ class UsageHistory {
               serial_number: true,
               Category: true,
               statusId: true,
-              Room: {
-                include: {
-                  deparment: true,
-                },
-              },
+            },
+          },
+          Room: {
+            include: {
+              deparment: true,
             },
           },
         },
       });
       return new ApiRes(201, "success", "Các thiết bị đã được sử dụng", getAll);
     } catch (error) {
-      return new ApiRes(500, "error", "Internal server error", null);
+      return new ApiRes(500, "error", "Internal server error", error);
     }
   }
   async deleteUsing(id) {
@@ -153,7 +148,7 @@ class UsageHistory {
           },
         },
       });
-      console.log(extingUsage);
+
       if (!extingUsage) {
         return new ApiRes(400, "failed", "Không tồn tại", null);
       }
@@ -171,7 +166,6 @@ class UsageHistory {
           id: extingUsage.Device.id,
         },
         data: {
-          roomId: 10,
           statusId: 1,
         },
       });
@@ -183,32 +177,32 @@ class UsageHistory {
   }
 }
 
-cron.schedule("*/5 * * * *", async function () {
-  const currentTime = new Date();
-  const req = await prisma.usageHistory.findMany({
-    where: {
-      usage_end: { lt: currentTime },
-      Device: {
-        NOT: {
-          statusId: 3,
-        },
-      },
-    },
-  });
-  if (req.length > 0) {
-    await prisma.device.updateMany({
-      where: {
-        id: {
-          in: req.map((device) => device.deviceId),
-        },
-      },
-      data: {
-        statusId: 3,
-      },
-    });
-  }
-  console.log(req);
+// cron.schedule("*/5 * * * *", async function () {
+//   const currentTime = new Date();
+//   const req = await prisma.usageHistory.findMany({
+//     where: {
+//       usage_end: { lt: currentTime },
+//       Device: {
+//         NOT: {
+//           statusId: 3,
+//         },
+//       },
+//     },
+//   });
+//   if (req.length > 0) {
+//     await prisma.device.updateMany({
+//       where: {
+//         id: {
+//           in: req.map((device) => device.deviceId),
+//         },
+//       },
+//       data: {
+//         statusId: 3,
+//       },
+//     });
+//   }
+//   console.log(req);
 
-  console.log("running a task every 15 seconds");
-});
+//   console.log("running a task every 15 seconds");
+// });
 module.exports = UsageHistory;

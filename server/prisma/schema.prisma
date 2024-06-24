@@ -25,13 +25,15 @@ model User {
 }
 
 model Room {
-  id           Int               @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   room_name    String
   deparment_id Int
-  deparment    Deparment         @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
-  Devices      Device[]
+  deparment    Deparment @relation(fields: [deparment_id], references: [id], onDelete: Cascade)
+
   oldHistories HistoryTransfer[] @relation("OldRoom")
   newHistories HistoryTransfer[] @relation("NewRoom")
+
+  UsageHistory UsageHistory[]
 }
 
 model Deparment {
@@ -55,12 +57,11 @@ model Device {
   purchase_date DateTime
   price         Int
   qr_code       String?
-  Room          Room?    @relation(fields: [roomId], references: [id])
-  roomId        Int?
-  Category      Category @relation(fields: [categoryId], references: [id])
-  categoryId    Int
-  Status        Status?  @relation(fields: [statusId], references: [id])
-  statusId      Int?
+
+  Category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  Status     Status?  @relation(fields: [statusId], references: [id])
+  statusId   Int?
 
   HistoryTransfer HistoryTransfer[]
   UsageHistory    UsageHistory[]
@@ -87,18 +88,65 @@ model UsageHistory {
   id          Int       @id @default(autoincrement())
   deviceId    Int
   user        String
-  roomId      Int
   usage_start DateTime  @default(now())
-  usage_end   DateTime
+  usage_end   DateTime?
   end         DateTime?
   purpose     String?
   isHidden    Boolean   @default(false)
   Device      Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   History     History[]
+  Room        Room?     @relation(fields: [roomId], references: [id])
+  roomId      Int?
 }
 
 model History {
   id           Int          @id @default(autoincrement())
   usageId      Int
   UsageHistory UsageHistory @relation(fields: [usageId], references: [id], onDelete: Cascade)
+}
+
+model Material {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  imageUrl     String?
+  unit         String
+  trash        Boolean       @default(false)
+  inventory    Inventory[]
+  transactions Transaction[]
+  orderItems   OrderItem[]
+}
+
+model Inventory {
+  id         Int      @id @default(autoincrement())
+  material   Material @relation(fields: [materialId], references: [id])
+  materialId Int
+  quantity   Int      @default(0)
+}
+
+model Transaction {
+  id              Int      @id @default(autoincrement())
+  material        Material @relation(fields: [materialId], references: [id])
+  materialId      Int
+  transactionType String
+  quantity        Int
+  transactionDate DateTime @default(now())
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  orderDate    DateTime    @default(now())
+  orderDateEnd DateTime?
+  status       String
+  orderItems   OrderItem[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    Int
+  material   Material @relation(fields: [materialId], references: [id])
+  materialId Int
+  quantity   Int
+  price      Float
 }
