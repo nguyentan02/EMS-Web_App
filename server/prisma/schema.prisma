@@ -32,8 +32,7 @@ model Room {
 
   oldHistories HistoryTransfer[] @relation("OldRoom")
   newHistories HistoryTransfer[] @relation("NewRoom")
-
-  UsageHistory UsageHistory[]
+  Device       Device[]
 }
 
 model Deparment {
@@ -49,28 +48,30 @@ model Category {
 }
 
 model Device {
-  id            Int      @id @default(autoincrement())
-  name          String
-  model         String
-  serial_number String
-  manufacturer  String
-  purchase_date DateTime
-  price         Int
-  qr_code       String?
-
-  Category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
-  Status     Status?  @relation(fields: [statusId], references: [id])
-  statusId   Int?
-
-  HistoryTransfer HistoryTransfer[]
-  UsageHistory    UsageHistory[]
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  model               String
+  serial_number       String
+  manufacturer        String
+  purchase_date       DateTime
+  price               Int
+  qr_code             String?
+  Category            Category              @relation(fields: [categoryId], references: [id])
+  categoryId          Int
+  Status              Status?               @relation(fields: [statusId], references: [id])
+  statusId            Int?
+  roomId              Int                   @default(10)
+  Room                Room                  @relation(fields: [roomId], references: [id])
+  HistoryTransfer     HistoryTransfer[]
+  UsageHistory        UsageHistory[]
+  Maintenance_History Maintenance_History[]
 }
 
 model Status {
-  id      Int      @id @default(autoincrement())
-  name    String
-  Devices Device[]
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  Devices             Device[]
+  Maintenance_History Maintenance_History[]
 }
 
 model HistoryTransfer {
@@ -95,8 +96,6 @@ model UsageHistory {
   isHidden    Boolean   @default(false)
   Device      Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   History     History[]
-  Room        Room?     @relation(fields: [roomId], references: [id])
-  roomId      Int?
 }
 
 model History {
@@ -118,19 +117,23 @@ model Material {
 }
 
 model Inventory {
-  id         Int      @id @default(autoincrement())
-  material   Material @relation(fields: [materialId], references: [id])
-  materialId Int
-  quantity   Int      @default(0)
+  id                   Int                    @id @default(autoincrement())
+  material             Material               @relation(fields: [materialId], references: [id])
+  materialId           Int
+  quantity             Int                    @default(0)
+  MaintenanceInventory MaintenanceInventory[]
 }
 
 model Transaction {
-  id              Int      @id @default(autoincrement())
-  material        Material @relation(fields: [materialId], references: [id])
-  materialId      Int
-  transactionType String
-  quantity        Int
-  transactionDate DateTime @default(now())
+  id                     Int                   @id @default(autoincrement())
+  material               Material              @relation(fields: [materialId], references: [id])
+  materialId             Int
+  transactionType        String
+  quantity               Int
+  price                  Float?
+  transactionDate        DateTime              @default(now())
+  MaintenanceInventory   MaintenanceInventory? @relation(fields: [maintenanceInventoryId], references: [id], onDelete: Cascade)
+  maintenanceInventoryId Int?
 }
 
 model Order {
@@ -149,4 +152,38 @@ model OrderItem {
   materialId Int
   quantity   Int
   price      Float
+}
+
+model Maintenance_History {
+  id            Int                    @id @default(autoincrement())
+  deviceId      Int
+  device        Device                 @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  date_start    DateTime               @default(now())
+  date_end      DateTime
+  employee_code Int
+  nhan_vien     nhan_vien              @relation(fields: [employee_code], references: [id])
+  cost          Float
+  description   String?
+  inventories   MaintenanceInventory[]
+  Status        Status                 @relation(fields: [statusId], references: [id])
+  statusId      Int                    @default(4)
+}
+
+model MaintenanceInventory {
+  id                   Int                 @id @default(autoincrement())
+  maintenanceHistory   Maintenance_History @relation(fields: [maintenanceHistoryId], references: [id], onDelete: Cascade)
+  maintenanceHistoryId Int
+  inventory            Inventory           @relation(fields: [inventoryId], references: [id])
+  inventoryId          Int
+  quantityMater        Int
+  transactions         Transaction[]
+}
+
+model nhan_vien {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  employee_code       String                @unique
+  position            String
+  Date_Start          DateTime              @default(now())
+  Maintenance_History Maintenance_History[]
 }

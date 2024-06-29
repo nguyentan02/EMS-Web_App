@@ -6,6 +6,9 @@ const deviceRouter = require("./device.router");
 const usageRouter = require("./usage.router");
 const materialRouter = require("./material.router");
 const orderRouter = require("./order.router");
+const maintenanceRouter = require("./maintenance.router");
+const personnelRouter = require("./personnel.router");
+const transactionRouter = require("./transaction.router");
 const router = Router();
 
 router.use("/auth", userRouter);
@@ -15,4 +18,7 @@ router.use("/device", deviceRouter);
 router.use("/usage", usageRouter);
 router.use("/material", materialRouter);
 router.use("/order", orderRouter);
+router.use("/maintenance", maintenanceRouter);
+router.use("/personnel", personnelRouter);
+router.use("/transaction", transactionRouter);
 module.exports = router;

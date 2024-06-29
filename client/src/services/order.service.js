@@ -10,7 +10,7 @@ class orderService {
     return (await this.api.put(`/${id}`)).data;
   }
   async getQuantity() {
-    return (await this.api.get("/checkQuantity")).data;
+    return (await this.api.get("/checkInventory")).data;
   }
   async getOrder() {
     return (await this.api.get("/")).data;

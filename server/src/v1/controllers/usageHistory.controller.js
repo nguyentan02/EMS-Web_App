@@ -7,7 +7,7 @@ module.exports = {
     const usageHistoryService = new UsageHistoryService();
     const { deviceId, user, roomId, usage_start, usage_end, purpose } =
       req.body;
-
+    console.log(deviceId, user, roomId, usage_start, usage_end, purpose);
     const created = await usageHistoryService.createUsing(
       deviceId,
       user,

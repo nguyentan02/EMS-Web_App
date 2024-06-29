@@ -25,14 +25,18 @@ module.exports = {
   updateMaterial: async (req, res, next) => {
     try {
       const file = req.file;
-      console.log(file);
       const materialService = new MaterialService();
       const { id, name, description, unit } = req.body;
-
+      let imageUrl;
+      if (file.path) {
+        imageUrl = file.path;
+      } else {
+        imageUrl = null;
+      }
       const newMaterial = await materialService.updateMaterial(
         id,
         name,
-        file.path,
+        imageUrl,
         description,
         unit
       );

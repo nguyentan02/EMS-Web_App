@@ -6,6 +6,6 @@ const router = Router();
 router.post("/create", orderController.createOrder);
 router.get("/", orderController.getOrder);
 router.put("/:id", orderController.updateOrder);
-router.get("/checkQuantity", orderController.checkQuantityMaterial);
+router.get("/checkInventory", orderController.checkQuantityMaterial);
 router.get("/:id", orderController.getOrderById);
 module.exports = router;

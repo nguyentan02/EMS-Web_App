@@ -37,7 +37,9 @@ class CategoryService {
     }
   }
   async getCategory() {
-    return prisma.category.findMany({});
+    return prisma.category.findMany({
+      include: { Devices: true },
+    });
   }
   async updateCategory(id, data) {
     return prisma.category.update({

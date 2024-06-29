@@ -13,6 +13,7 @@ function openDetailModal(id) {
 const materials = ref();
 onMounted(async () => {
   materials.value = await useOrderStore.getMaterialQuantity();
+  console.log(materials.value);
 });
 </script>
 <template>
@@ -36,23 +37,23 @@ onMounted(async () => {
       <tr class="">
         <td class="text-center border">{{ i + 1 }}</td>
         <td class="text-center font-medium text-gray-900 border">
-          {{ material.name }}
+          {{ material.material.name }}
         </td>
         <td class="text-center border">
           <div class="flex justify-center">
             <img
-              :src="material.imageUrl"
+              :src="material.material.imageUrl"
               alt="image"
-              class="h-[50px] w-[50px]"
+              class="h-[60px] w-[70px]"
             />
           </div>
         </td>
         <td class="text-center border">
-          {{ material.unit }}
+          {{ material.material.unit }}
         </td>
 
         <td class="text-center border">
-          {{ material.totalQuantity }}
+          {{ material.quantity }}
         </td>
         <td class="text-center border">
           <span

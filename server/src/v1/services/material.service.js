@@ -36,14 +36,6 @@ class MeterialService {
   }
   async updateMaterial(id, name, imageUrl, description, unit) {
     try {
-      const extMaterial = await prisma.material.findFirst({
-        where: {
-          id: +id,
-        },
-      });
-      if (!extMaterial) {
-        return new ApiRes(401, "failed", "Không tồn tại vật tư", null);
-      }
       const updateMaterial = await prisma.material.update({
         where: { id: +id },
         data: {
@@ -53,6 +45,7 @@ class MeterialService {
           unit: unit,
         },
       });
+
       return new ApiRes(
         201,
         "success",

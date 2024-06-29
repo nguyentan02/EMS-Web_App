@@ -14,10 +14,19 @@ module.exports = {
         manufac,
         purchase,
         price,
-        status_id,
+
         category_id,
       } = req.body;
+      console.log(
+        name,
+        model,
+        serial,
+        manufac,
+        purchase,
+        price,
 
+        category_id
+      );
       const createdDevice = await deviceService.createDevice(
         name,
         model,
@@ -25,7 +34,7 @@ module.exports = {
         manufac,
         purchase,
         price,
-        status_id,
+
         category_id
       );
       return res.json(createdDevice);

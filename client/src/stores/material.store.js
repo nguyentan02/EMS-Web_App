@@ -6,9 +6,11 @@ export const materialStore = defineStore("material", () => {
   const err = ref(null);
   const result = ref(null);
   const material = ref(null);
+  const isLoading = ref(false);
   const createMaterial = async (data) => {
     err.value = null;
     result.value = null;
+
     try {
       let res = await materialService.createMaterial(data);
       if (res.code !== 201) throw new Error(res.message);
@@ -43,12 +45,15 @@ export const materialStore = defineStore("material", () => {
   const getMaterial = async () => {
     err.value = null;
     material.value = null;
+    isLoading.value = true;
     try {
       let testr = await materialService.getMaterial();
 
       return (material.value = testr.data);
     } catch (error) {
       err.value = error.message;
+    } finally {
+      isLoading.value = false;
     }
   };
   const getMaterialById = async (id) => {
@@ -66,6 +71,7 @@ export const materialStore = defineStore("material", () => {
   return {
     result,
     err,
+    isLoading,
     getMaterial,
     createMaterial,
     updateMaterial,

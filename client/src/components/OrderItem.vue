@@ -1,55 +1,5 @@
-<script setup>
-import { orderStore } from "@/stores/order.store";
-import { materialStore } from "../stores/material.store";
-import { ref, onMounted, reactive } from "vue";
-import { FwbButton, FwbModal, FwbInput, FwbSelect } from "flowbite-vue";
-import { useToast } from "vue-toast-notification";
-
-const useMaterialStore = materialStore();
-const useOrderStore = orderStore();
-const $toast = useToast();
-const materials = ref([]);
-const emit = defineEmits(["order-created", "close"]);
-const newOrderItems = ref([]); // Mảng để lưu trữ thông tin các mặt hàng mới
-const showModal1 = ref(true);
-
-onMounted(async () => {
-  materials.value = await useMaterialStore.getMaterial();
-  console.log(materials.value);
-  // Khởi tạo một mặt hàng mới mặc định
-});
-
-function addNewOrderItem() {
-  newOrderItems.value.push({
-    materialId: null,
-    quantity: 1,
-    price: 0,
-  });
-}
-
-function removeOrderItem(index) {
-  newOrderItems.value.splice(index, 1);
-}
-
-async function createOrder() {
-  try {
-    const orderData = {
-      orderItems: newOrderItems.value,
-    };
-    await useOrderStore.createOrder(orderData);
-    $toast.success("Tạo đơn hàng thành công!", { position: "top-right" });
-    showModal1.value = false;
-    emit("order-created");
-    newOrderItems.value = [];
-    addNewOrderItem();
-  } catch (error) {
-    $toast.error("Lỗi khi tạo đơn hàng!", { position: "top-right" });
-  }
-}
-</script>
-
 <template>
-  <fwb-modal v-if="showModal1" @close="$emit('close')">
+  <fwb-modal @close="$emit('close')">
     <template #header>
       <div class="flex items-center text-lg">Tạo đơn hàng mới</div>
     </template>
@@ -98,11 +48,58 @@ async function createOrder() {
     </template>
     <template #footer>
       <div class="flex justify-between">
-        <fwb-button @click="showModal1 = false" color="alternative"
-          >Hủy</fwb-button
-        >
+        <fwb-button @click="$emit('close')" color="alternative">Hủy</fwb-button>
         <fwb-button @click="createOrder" color="green">Tạo đơn hàng</fwb-button>
       </div>
     </template>
   </fwb-modal>
 </template>
+<script setup>
+import { orderStore } from "@/stores/order.store";
+import { materialStore } from "../stores/material.store";
+import { ref, onMounted, reactive } from "vue";
+import { FwbButton, FwbModal, FwbInput } from "flowbite-vue";
+import { useToast } from "vue-toast-notification";
+
+const useMaterialStore = materialStore();
+const useOrderStore = orderStore();
+const $toast = useToast();
+const materials = ref([]);
+const emit = defineEmits(["order-created", "close"]);
+const newOrderItems = ref([]); // Mảng để lưu trữ thông tin các mặt hàng mới
+const showModal1 = ref(true);
+onMounted(async () => {
+  materials.value = await useMaterialStore.getMaterial();
+  console.log(materials.value);
+  // Khởi tạo một mặt hàng mới mặc định
+});
+
+function addNewOrderItem() {
+  newOrderItems.value.push({
+    materialId: null,
+    quantity: 1,
+    price: 0,
+  });
+}
+
+function removeOrderItem(index) {
+  newOrderItems.value.splice(index, 1);
+}
+
+async function createOrder() {
+  const orderData = {
+    orderItems: newOrderItems.value,
+  };
+  await useOrderStore.createOrder(orderData);
+  if (useOrderStore.err) {
+    $toast.error(useOrderStore.err, { position: "top-right" });
+    return;
+  }
+  $toast.success(useOrderStore.order.message, { position: "top-right" });
+  showModal1.value = false;
+  emit("order-created");
+  newOrderItems.value = [];
+  addNewOrderItem();
+}
+const selectedCountry = ref();
+</script>

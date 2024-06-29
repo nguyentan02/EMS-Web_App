@@ -11,7 +11,6 @@ class DeviceService {
     manufac,
     purchase,
     price,
-    status_id,
     category_id
   ) {
     try {
@@ -109,6 +108,7 @@ class DeviceService {
           null
         );
       }
+
       const deleteDevice = await prisma.device.delete({
         where: {
           id: +id,
@@ -121,6 +121,7 @@ class DeviceService {
         deleteDevice
       );
     } catch (error) {
+      console.log(error);
       return new ApiRes(500, "failed", "Không thể xoá", error);
     }
   }
@@ -172,8 +173,8 @@ class DeviceService {
 
   async transferDevice(id, deviceId, locationId) {
     try {
-      const extRoom = await prisma.usageHistory.findUnique({
-        where: { id: id },
+      const extRoom = await prisma.device.findUnique({
+        where: { id: deviceId },
         select: { roomId: true },
       });
       if (extRoom.roomId == locationId) {
@@ -186,8 +187,8 @@ class DeviceService {
       }
       const oldLocationId = extRoom.roomId;
 
-      const transferData = await prisma.usageHistory.update({
-        where: { id: id },
+      const transferData = await prisma.device.update({
+        where: { id: deviceId },
         data: {
           roomId: locationId,
         },

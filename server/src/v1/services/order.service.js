@@ -1,11 +1,37 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const ApiRes = require("../utils/api-res");
-const { checkQuantity } = require("../controllers/order.controller");
 // OrderService
 class OrderService {
   async createOrder(dataOrder) {
     try {
+      if (
+        !dataOrder ||
+        !dataOrder.orderItems ||
+        !Array.isArray(dataOrder.orderItems) ||
+        dataOrder.orderItems.length === 0
+      ) {
+        return new ApiRes(
+          400,
+          "failed",
+          "Dữ liệu đặt hàng không hợp lệ. Vui lòng cung cấp danh sách các mặt hàng."
+        );
+      }
+      for (const item of dataOrder.orderItems) {
+        if (
+          !item.materialId ||
+          !item.quantity ||
+          item.quantity <= 0 ||
+          !item.price ||
+          item.price <= 0
+        ) {
+          return new ApiRes(
+            400,
+            "failed",
+            "Thông tin chi tiết về mặt hàng không hợp lệ."
+          );
+        }
+      }
       const order = await prisma.order.create({
         data: {
           status: "pending",
@@ -20,9 +46,9 @@ class OrderService {
         include: { orderItems: true },
       });
 
-      return order;
+      return new ApiRes(201, "success", "Đặt hàng thành công", order);
     } catch (error) {
-      console.log(error);
+      return new ApiRes(500, "faile", "Đặt hàng không thành công", error);
     }
   }
   async getOrders() {
@@ -39,27 +65,45 @@ class OrderService {
   }
 
   async getOrderById(id) {
-    const order = await prisma.order.findUnique({
-      where: { id: +id },
+    try {
+      const order = await prisma.order.findUnique({
+        where: { id: +id },
 
-      include: {
-        orderItems: {
-          include: { material: true },
+        include: {
+          orderItems: {
+            include: { material: true },
+          },
         },
-      },
-    });
-    const totalPrice = order.orderItems.reduce(
-      (acc, item) => acc + item.quantity * item.price,
-      0
-    );
+      });
+      const totalPrice = order.orderItems.reduce(
+        (acc, item) => acc + item.quantity * item.price,
+        0
+      );
 
-    return {
-      ...order,
-      totalPrice: totalPrice,
-    };
+      return {
+        ...order,
+        totalPrice: totalPrice,
+      };
+    } catch (error) {}
   }
 
   async updateOrder(id) {
+    await this.updateInventoryFromOrderItems();
+    const extOrder = await prisma.order.findFirst({
+      where: { id: +id },
+      include: {
+        orderItems: true,
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        materialId: extOrder.orderItems[0].materialId,
+        quantity: extOrder.orderItems[0].quantity,
+        price: extOrder.orderItems[0].price,
+        transactionType: "Nhập",
+        transactionDate: new Date(),
+      },
+    });
     return await prisma.order.update({
       where: { id: +id },
       data: {
@@ -73,37 +117,54 @@ class OrderService {
   async deleteOrder(id) {
     return await prisma.order.delete({ where: { id } });
   }
-  async checkInventoryLevels() {
-    try {
-      const materials = await prisma.material.findMany({
-        include: {
-          orderItems: true,
-        },
-      });
-      const inventoryLevels = materials.map((material) => {
+
+  async updateInventoryFromOrderItems() {
+    const materials = await prisma.material.findMany({
+      where: {
+        orderItems: { some: {} },
+      },
+      include: {
+        inventory: true,
+        orderItems: true,
+      },
+    });
+
+    for (const material of materials) {
+      if (material.orderItems) {
         const totalQuantity = material.orderItems.reduce(
           (acc, item) => acc + item.quantity,
           0
         );
-        const totalPrice = material.orderItems.reduce(
-          (acc, item) => acc + item.quantity * item.price,
-          0
-        );
-        return {
-          materialId: material.id,
-          name: material.name,
-          imageUrl: material.imageUrl,
-          unit: material.unit,
-          totalQuantity: totalQuantity,
-          totalPrice: totalPrice,
-        };
+
+        let inventoryId;
+        if (material.inventory) {
+          inventoryId = material.inventory.map((item) => item.id);
+        }
+
+        await prisma.inventory.upsert({
+          where: { id: +inventoryId },
+          update: { quantity: totalQuantity },
+          create: {
+            materialId: material.id,
+            quantity: totalQuantity,
+          },
+        });
+      }
+    }
+  }
+  async checkInventoryLevels() {
+    try {
+      const Inventory = await prisma.inventory.findMany({
+        where: {
+          quantity: {
+            gt: 0,
+          },
+        },
+        include: {
+          material: true,
+        },
       });
-      return new ApiRes(
-        201,
-        "succes",
-        "Lấy dữ liêu thành công",
-        inventoryLevels
-      );
+      return new ApiRes(201, "succes", "Lấy dữ liêu thành công", Inventory);
     } catch (error) {
       console.log(error);
     }

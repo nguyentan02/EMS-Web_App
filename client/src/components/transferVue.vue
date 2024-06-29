@@ -59,7 +59,7 @@ function showModal() {
 
 const editDevices = reactive({
   deviceId: "",
-  id: "",
+  // id: "",
   locationId: "",
 });
 const selected = ref();
@@ -142,28 +142,30 @@ const updateDevice = async () => {
             >Đang hoạt động</fwb-badge
           >
           <fwb-badge
-            v-else="device.Device.statusId === 3"
+            v-else="device.Device.statusId === 4"
             type="yellow"
             class="w-[90px] ml-2"
-            >Cần bảo trì</fwb-badge
+            >Đang bảo trì</fwb-badge
           >
         </td>
 
         <td class="text-center border">
-          {{ device.Room.room_name }}/{{ device.Room.deparment.deparment_name }}
+          {{ device.Device.Room.room_name }}/{{
+            device.Device.Room.deparment.deparment_name
+          }}
         </td>
         <td class="text-center border">{{ device.Device.Category.name }}</td>
         <td class="text-center border">
           <fwb-button
             @click="
               () => {
-                editDevices.id = device.id;
+                // editDevices.id = device.id;
                 editDevices.deviceId = device.deviceId;
                 editDevices.name = device.Device.name;
                 editDevices.model = device.Device.model;
                 editDevices.serial = device.Device.serial_number;
-                editDevices.room = device.Room.room_name;
-                editDevices.depar = device.Room.deparment.deparment_name;
+                editDevices.room = device.Device.Room.room_name;
+                editDevices.depar = device.Device.Room.deparment.deparment_name;
                 showModal();
               }
             "

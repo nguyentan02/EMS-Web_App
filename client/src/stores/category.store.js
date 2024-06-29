@@ -7,11 +7,10 @@ export const cateStore = defineStore("category", () => {
   const router = useRouter();
   const err = ref(null);
   const result = ref(null);
-  const rooms = ref([]);
 
   const getCate = async () => {
     err.value = null;
-    rooms.value = null;
+    result.value = null;
     try {
       let testr = await categoryService.getCate();
       const category = testr.map((res) => ({
@@ -24,6 +23,15 @@ export const cateStore = defineStore("category", () => {
       err.value = error.message;
     }
   };
-
-  return { result, err, getCate };
+  const getDataChart = async () => {
+    err.value = null;
+    result.value = null;
+    try {
+      let testr = await categoryService.getCate();
+      return (result.value = testr);
+    } catch (error) {
+      err.value = error.message;
+    }
+  };
+  return { result, err, getCate, getDataChart };
 });

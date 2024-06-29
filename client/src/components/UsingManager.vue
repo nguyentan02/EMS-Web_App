@@ -204,11 +204,11 @@ function applyFilters() {
     const roomMatches =
       selectedRoom.value === "all" ||
       !selectedRoom.value ||
-      usage.Room.id === selectedRoom.value;
+      usage.Device.Room.id === selectedRoom.value;
     const departmentMatches =
       selectedDepartment.value === "all" ||
       !selectedDepartment.value ||
-      usage.Room.deparment_id === selectedDepartment.value;
+      usage.Device.Room.deparment_id === selectedDepartment.value;
     return roomMatches && departmentMatches;
   });
 }
@@ -281,12 +281,12 @@ function formatDuration(startTime) {
               class="h-[30px]"
             />
           </div>
-          <!-- <div class="flex align-items-center gap-3 mb-3">
+          <div class="flex align-items-center gap-3 mb-3">
             <label for="name" class="font-semibold w-6rem mr-7"
               >Ngày hết hạn:</label
             >
             <input v-model="creDevice.usage_end" type="date" class="h-[30px]" />
-          </div> -->
+          </div>
           <fwb-textarea
             v-model="creDevice.message"
             :rows="4"
@@ -347,7 +347,7 @@ function formatDuration(startTime) {
         <th class="text-center border px-4 py-3">Phòng / Khoa</th>
         <th class="text-center border px-4 py-3">Người sử dụng</th>
         <th class="text-center border px-4 py-3">Ngày bắt đầu</th>
-        <!-- <th class="text-center border px-4 py-3">Ngày hết hạn</th> -->
+        <th class="text-center border px-4 py-3">Ngày hết hạn</th>
         <th class="text-center border px-4 py-3">Thời gian đã sử dụng</th>
         <th class="text-center border px-4 py-3">
           <span class="">Hành động</span>
@@ -384,8 +384,8 @@ function formatDuration(startTime) {
           {{ usage.Device.Category.name }}
         </td>
         <td class="text-center border">
-          {{ usage.Room.room_name }} /
-          {{ usage.Room.deparment.deparment_name }}
+          {{ usage.Device.Room.room_name }} /
+          {{ usage.Device.Room.deparment.deparment_name }}
         </td>
         <td class="text-center border">
           {{ usage.user }}
@@ -393,9 +393,9 @@ function formatDuration(startTime) {
         <td class="text-center border">
           {{ dayjs(usage.usage_start).format("DD/MM/YYYY") }}
         </td>
-        <!-- <td class="text-center border">
+        <td class="text-center border">
           {{ dayjs(usage.usage_end).format("DD/MM/YYYY") }}
-        </td> -->
+        </td>
         <td class="text-center border">
           {{ formatDuration(usage.usage_start) }}
         </td>

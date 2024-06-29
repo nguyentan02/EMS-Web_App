@@ -7,10 +7,6 @@ const prisma = new PrismaClient();
 class UsageHistory {
   async createUsing(deviceId, user, roomId, usage_start, usage_end, purpose) {
     try {
-      // const durationInSeconds = Math.round(
-      //   (new Date(usage_end) - new Date(usage_start)) / 1000
-      // );
-      // console.log(durationInSeconds);
       if (!roomId) {
         return new ApiRes(
           401,
@@ -26,11 +22,8 @@ class UsageHistory {
           },
           // deviceId: deviceId,
           user: user,
-          Room: {
-            connect: { id: roomId },
-          },
           usage_start: new Date(usage_start),
-          // usage_end: new Date(usage_end),
+          usage_end: new Date(usage_end),
           purpose: purpose,
         },
       });
@@ -39,14 +32,15 @@ class UsageHistory {
           id: deviceId,
         },
         data: {
+          roomId: roomId,
           statusId: 2,
         },
       });
-      await prisma.history.create({
-        data: {
-          usageId: newUsing.id,
-        },
-      });
+      // await prisma.history.create({
+      //   data: {
+      //     usageId: newUsing.id,
+      //   },
+      // });
       return new ApiRes(
         201,
         "success",
@@ -67,7 +61,7 @@ class UsageHistory {
         data: {
           user: user,
           usage_start: new Date(usage_start),
-          // usage_end: new Date(usage_end),
+          usage_end: new Date(usage_end),
           purpose: purpose,
         },
       });
@@ -89,11 +83,7 @@ class UsageHistory {
               serial_number: true,
               Category: true,
               statusId: true,
-            },
-          },
-          Room: {
-            include: {
-              deparment: true,
+              Room: { include: { deparment: true } },
             },
           },
         },

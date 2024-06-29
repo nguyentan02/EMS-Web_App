@@ -71,7 +71,7 @@
         >
 
         <router-link
-          :to="{ name: 'HistoryUsing' }"
+          :to="{ name: 'UsageHistory' }"
           class="text-black inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
           ><svg
             xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@
           Lịch sử sử dụng</router-link
         >
         <router-link
-          :to="{ name: 'HistoryUsing' }"
+          :to="{ name: 'UsageHistory' }"
           class="text-black inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
           ><svg
             xmlns="http://www.w3.org/2000/svg"

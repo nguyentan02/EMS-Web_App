@@ -10,13 +10,13 @@ import {
   FwbBadge,
   FwbPagination,
 } from "flowbite-vue";
+
 import OrderDetail from "../components/OrderDetail.vue";
 import OrderItem from "../components/OrderItem.vue";
 import dayjs from "dayjs";
 const useOrderStore = orderStore();
 const orders = ref();
 
-const materials = ref();
 onMounted(async () => {
   orders.value = await useOrderStore.getOrderMater();
 });
@@ -49,7 +49,6 @@ const refreshOrders = async () => {
     <h1 class="text-xl font-bold pl-4">Danh sách đơn hàng</h1>
     <div class="card flex justify-content-center">
       <fwb-button @click="openOrderItemModal">Đặt hàng</fwb-button>
-
       <OrderItem
         v-if="showOrderItemModal"
         @close="showOrderItemModal = false"

@@ -32,8 +32,8 @@
             <Column header="Phòng / Khoa">
               <template #body="slotProps">
                 <span>
-                  {{ slotProps.data.Room.room_name }} /
-                  {{ slotProps.data.Room.deparment.deparment_name }}
+                  {{ slotProps.data.Device.Room.room_name }} /
+                  {{ slotProps.data.Device.Room.deparment.deparment_name }}
                 </span>
               </template>
             </Column>

@@ -20,9 +20,9 @@ class HistoryService {
           Category: true,
           UsageHistory: {
             include: {
-              Room: {
+              Device: {
                 include: {
-                  deparment: true,
+                  Room: { include: { deparment: true } },
                 },
               },
             },

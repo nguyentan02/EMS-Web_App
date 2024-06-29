@@ -4,7 +4,7 @@ import { materialStore } from "../stores/material.store";
 import { FwbFileInput } from "flowbite-vue";
 
 import SearchForm from "../components/SearchForm.vue";
-
+import Loading from "../components/loading.vue";
 import {
   FwbButton,
   FwbModal,
@@ -56,6 +56,7 @@ const editMaterial = reactive({
   unit: "",
 });
 const updateDevice = async () => {
+  useMaterialStore.isLoading = true;
   const update = new FormData();
   update.append("image", selectedFile.value);
   update.append("id", editMaterial.id);
@@ -63,13 +64,14 @@ const updateDevice = async () => {
   update.append("description", editMaterial.description);
   update.append("unit", editMaterial.unit);
   await useMaterialStore.updateMaterial(update);
+  useMaterialStore.isLoading = false;
   if (useMaterialStore.err) {
     $toast.error(useMaterialStore.err, { position: "top-right" });
     return;
   }
   $toast.success(useMaterialStore.result.message, { position: "top-right" });
-  materials.value = await useMaterialStore.getMaterial();
   closeModal();
+  materials.value = await useMaterialStore.getMaterial();
 };
 
 const createMaterial = reactive({
@@ -80,18 +82,22 @@ const createMaterial = reactive({
 });
 
 const createDevice = async () => {
+  closeModal1();
+  useMaterialStore.isLoading = true;
   const data = new FormData();
   data.append("image", selectedFile.value);
   data.append("name", createMaterial.name);
   data.append("description", createMaterial.description);
   data.append("unit", createMaterial.unit);
   await useMaterialStore.createMaterial(data);
+  useMaterialStore.isLoading = false;
+
   if (useMaterialStore.err) {
     $toast.error(useMaterialStore.err, { position: "top-right" });
     return;
   }
   $toast.success(useMaterialStore.result.message, { position: "top-right" });
-  closeModal1();
+
   materials.value = await useMaterialStore.getMaterial();
 };
 
@@ -111,7 +117,6 @@ const selectedFile = ref(null);
 const onFileSelected = (event) => {
   selectedFile.value = event.target.files[0];
   console.log(selectedFile.value);
-  // if (!selectedFile.value.length) return;
 };
 </script>
 <template>
@@ -141,12 +146,6 @@ const onFileSelected = (event) => {
             </div>
 
             <div class="flex align-items-center gap-3 mb-3 mr-5">
-              <!-- <fwb-file-input
-                v-model="createMaterial.imageUrl"
-                label="Chọn hình ảnh thiết bị"
-                size="xs"
-
-              /> -->
               <input
                 @change="onFileSelected"
                 type="file"
@@ -195,9 +194,14 @@ const onFileSelected = (event) => {
 
   <hr />
   <SearchForm />
-  <div v-if="!materials || materials.length === 0" class="text-center py-4">
+
+  <div
+    v-if="!materials.length === 0 && !useMaterialStore.isLoading"
+    class="text-center py-4"
+  >
     <p>Không có thiết bị nào</p>
   </div>
+  <Loading class="m-auto" v-else-if="useMaterialStore.isLoading" />
   <table v-else class="w-full text-sm text-left text-gray-700">
     <thead class="text-xs text-gray-700 bg-gray-50">
       <tr>
@@ -268,7 +272,7 @@ const onFileSelected = (event) => {
                   </div>
                   <div class="flex align-items-center gap-3 mb-3">
                     <label for="model" class="font-semibold w-6rem"
-                      >Model:</label
+                      >Đơn vị:</label
                     >
                     <input
                       v-model="editMaterial.unit"

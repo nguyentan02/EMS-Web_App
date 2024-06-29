@@ -34,8 +34,8 @@ const routes = [
         component: () => import("../components/HistoryTransferVue.vue"),
       },
       {
-        path: "/HistoryUsing",
-        name: "HistoryUsing",
+        path: "/UsageHistory",
+        name: "UsageHistory",
         component: () => import("../components/HistoryUsing2.vue"),
       },
       {
@@ -52,6 +52,16 @@ const routes = [
         path: "/materialsWarehouse",
         name: "materialsWarehouse",
         component: () => import("../components/materialsWarehouse.vue"),
+      },
+      {
+        path: "/maintenance",
+        name: "maintenance",
+        component: () => import("../components/Maintenance.vue"),
+      },
+      {
+        path: "/statistical",
+        name: "statistical",
+        component: () => import("../components/statisticalVue.vue"),
       },
     ],
   },

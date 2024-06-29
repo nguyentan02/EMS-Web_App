@@ -70,6 +70,7 @@ export const orderStore = defineStore("order", () => {
     result,
     err,
     quantity,
+    order,
     getMaterialQuantity,
     getOrderMater,
     getOrderMaterById,

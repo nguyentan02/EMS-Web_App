@@ -17,7 +17,7 @@ app.use(ConfirmationService);
 app.use(ToastService);
 app.use(PrimeVue, {
   unstyled: true,
-  pt: Lara, //apply preset
+  pt: Lara,
 });
 pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
