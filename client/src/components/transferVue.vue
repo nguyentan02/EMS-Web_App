@@ -142,10 +142,16 @@ const updateDevice = async () => {
             >Đang hoạt động</fwb-badge
           >
           <fwb-badge
-            v-else="device.Device.statusId === 4"
+            v-else-if="device.Device.statusId === 4"
             type="yellow"
             class="w-[90px] ml-2"
             >Đang bảo trì</fwb-badge
+          >
+          <fwb-badge
+            v-else="device.Device.statusId === 6"
+            type="red"
+            class="w-[90px] ml-2"
+            >Quá hạn sử dụng</fwb-badge
           >
         </td>
 

@@ -24,6 +24,7 @@
       <nav class="mt-4">
         <div class="flex flex-col space-y-[10px]">
           <router-link
+            active-class="active-link"
             :to="{ name: 'test' }"
             class="text-white inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
             ><svg
@@ -45,6 +46,7 @@
           >
           <router-link
             :to="{ name: 'Using' }"
+            active-class="active-link"
             class="text-white inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
@@ -65,6 +67,7 @@
           >
           <router-link
             :to="{ name: 'transfer' }"
+            active-class="active-link"
             class="text-white inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
@@ -83,6 +86,7 @@
             Luân chuyển thiết bị</router-link
           ><router-link
             :to="{ name: 'maintenance' }"
+            active-class="active-link"
             class="text-white inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
@@ -108,6 +112,7 @@
           <Material />
           <dropDown />
           <router-link
+            active-class="active-link"
             :to="{ name: 'statistical' }"
             class="text-white inline-flex relative items-center py-[10px] px-[10px] w-full text-base font-medium rounded-md border-gray-200 hover:bg-gray-300 hover:text-gray"
             ><svg
@@ -121,14 +126,10 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4.867 19.125h.008v.008h-.008v-.008Z"
+                d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"
               />
             </svg>
+
             Thống kê dữ liệu</router-link
           >
         </div>
@@ -208,6 +209,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
@@ -256,3 +258,12 @@ function toggleSideBar() {
   showSide.value = !showSide.value;
 }
 </script>
+<style>
+/* Active link styling */
+.active-link {
+  background-color: #89a8a1; /* Example - customize as needed */
+  font-weight: bold;
+}
+
+/* ...your other styles ... */
+</style>

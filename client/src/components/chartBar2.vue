@@ -4,7 +4,7 @@
       type="bar"
       :data="chartData"
       :options="chartOptions"
-      class="w-[500px]"
+      class="md:w-[25rem] h-[200px]"
     />
   </div>
 </template>
@@ -37,9 +37,9 @@ const setChartData = () => {
       {
         data: label,
         backgroundColor: [
-          "RGBA( 210, 105, 30, 1 )",
-          "RGBA( 255, 127, 80, 1 )",
-          "RGBA( 100, 149, 237, 1 )",
+          "rgba(38, 191, 49, 0.95)",
+          "rgba(252, 170, 38, 0.95)",
+          "rgba(233, 53, 25, 0.95)",
         ],
         borderWidth: 1,
       },
@@ -64,6 +64,14 @@ const setChartOptions = () => {
           generateLabels: function (chart) {
             return [];
           },
+        },
+      },
+      title: {
+        display: true,
+        text: "Thống kê tình trạng bảo trì,sửa chữa",
+        position: "bottom",
+        padding: {
+          top: 20,
         },
       },
     },

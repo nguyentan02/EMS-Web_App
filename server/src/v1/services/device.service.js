@@ -30,9 +30,9 @@ class DeviceService {
           serial_number: serial,
           manufacturer: manufac,
           purchase_date: new Date(purchase),
-          price: +price,
+          price: price.toString(),
           statusId: Number(1),
-          categoryId: category_id,
+          categoryId: +category_id,
         },
       });
       return new ApiRes(201, "success", "Tạo thiết bị thành công", {
@@ -81,9 +81,9 @@ class DeviceService {
           manufacturer: manufac,
           purchase_date: new Date(purchase),
           // purchase_date: dateObject,
-          price: +price,
+          price: price.toString(),
           status_id: status_id,
-          categoryId: category_id,
+          // categoryId: +category_id,
           //   qr_code: qr_code,
         },
       });

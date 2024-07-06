@@ -176,7 +176,7 @@ const deletedDevice = async () => {
             </div>
             <div class="flex items-center">
               <div class="flex align-items-center gap-3 mb-3 mr-5">
-                <label for="name" class="font-semibold w-6rem mr-9"
+                <label for="name" class="font-semibold w-6rem mr-10"
                   >Serial:</label
                 >
                 <input
@@ -198,17 +198,20 @@ const deletedDevice = async () => {
                 <label for="name" class="font-semibold w-6rem mr-14"
                   >Giá:</label
                 >
-                <input v-model="creDevice.price" type="text" class="h-[30px]" />
-              </div>
-              <div class="flex align-items-center gap-3 mb-3">
-                <fwb-select
-                  v-model="cateselect"
-                  :options="cates"
-                  label="Loại thiết bị"
+                <input
+                  v-model="creDevice.price"
+                  type="number"
+                  class="h-[30px]"
                 />
               </div>
             </div>
-
+            <div class="flex align-items-center gap-3 mb-3">
+              <fwb-select
+                v-model="cateselect"
+                :options="cates"
+                label="Loại thiết bị"
+              />
+            </div>
             <div class="flex align-items-center gap-3 mb-3">
               <label for="name" class="font-semibold w-6rem mr-2"
                 >Nhà sản xuất:</label
@@ -351,7 +354,7 @@ const deletedDevice = async () => {
                   >
                   <input
                     v-model="editDevices.price"
-                    type="text"
+                    type="number"
                     class="h-[30px]"
                   />
                 </div>

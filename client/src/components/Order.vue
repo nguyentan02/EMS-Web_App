@@ -91,7 +91,7 @@ const refreshOrders = async () => {
               v-if="order.status === 'pending'"
               type="red"
               class="w-[90px] ml-2 my-2"
-              >Đang vận chuyển</fwb-badge
+              >Đang chờ nhận hàng</fwb-badge
             >
             <fwb-badge v-else type="green" class="w-[90px] ml-2 my-2"
               >Đã nhận hàng</fwb-badge

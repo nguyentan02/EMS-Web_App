@@ -54,7 +54,7 @@ model Device {
   serial_number       String
   manufacturer        String
   purchase_date       DateTime
-  price               Int
+  price               String
   qr_code             String?
   Category            Category              @relation(fields: [categoryId], references: [id])
   categoryId          Int

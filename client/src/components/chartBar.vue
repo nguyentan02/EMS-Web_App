@@ -4,7 +4,7 @@
       type="bar"
       :data="chartData"
       :options="chartOptions"
-      class="w-full md:w-[50rem]"
+      class="w-full md:w-[35rem]"
     />
   </div>
 </template>
@@ -59,6 +59,14 @@ const setChartOptions = () => {
       legend: {
         labels: {
           color: textColor,
+        },
+      },
+      title: {
+        display: true,
+        text: "Biểu đồ thống kê số lượng thiết bị",
+        position: "bottom",
+        padding: {
+          top: 20,
         },
       },
     },

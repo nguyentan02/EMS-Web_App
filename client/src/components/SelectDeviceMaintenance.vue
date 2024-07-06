@@ -89,7 +89,7 @@ onMounted(async () => {
   console.log(products.value);
 });
 const filteredDevices = computed(() => {
-  return products.value?.filter((device) => device.Device.statusId === 2) ?? [];
+  return products.value?.filter((device) => device.Device.statusId !== 4) ?? [];
 });
 const onProductSelect = (event) => {
   visible.value = false;

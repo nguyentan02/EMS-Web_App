@@ -40,5 +40,18 @@ class HistoryService {
       throw new Error("Could not retrieve usage history");
     }
   }
+  async getMaintenanDevice() {
+    try {
+      const get = await prisma.device.findMany({
+        select: {
+          id: true,
+          Maintenance_History: true,
+        },
+      });
+      return new ApiRes(201, "succes", "Truy xuất dữ liệu thành công", get);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 module.exports = HistoryService;

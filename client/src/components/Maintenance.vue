@@ -133,8 +133,14 @@ const deletedMaintenance = async () => {
             >{{ maintenance.Status.name }}</fwb-badge
           >
           <fwb-badge
-            v-else="maintenance.Status.id === 3"
+            v-else-if="maintenance.Status.id === 3"
             type="green"
+            class="w-[90px] ml-2"
+            >{{ maintenance.Status.name }}</fwb-badge
+          >
+          <fwb-badge
+            v-else="maintenance.Status.id === 5"
+            type="red"
             class="w-[90px] ml-2"
             >{{ maintenance.Status.name }}</fwb-badge
           >

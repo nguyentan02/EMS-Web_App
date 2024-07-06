@@ -87,47 +87,49 @@ async function updateMaintenance() {
     </template>
     <template #body>
       <form>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700"
-            >Thiết bị:</label
-          >
-          <p class="mt-1">
-            {{ props.maintenance.device.name }} (ID:
-            {{ editedMaintenance.deviceId }})
-          </p>
-        </div>
-        <div class="mb-4">
-          <label for="date_start" class="text-sm font-medium text-gray-700"
-            >Ngày bắt đầu:</label
-          >
-          <input
-            v-model="editedMaintenance.date_start"
-            type="date"
-            id="date_start"
-          />
-        </div>
+        <div class="text-left">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Thiết bị:</label
+            >
+            <p class="mt-1">
+              {{ props.maintenance.device.name }} (ID:
+              {{ editedMaintenance.deviceId }})
+            </p>
+          </div>
+          <div class="mb-4">
+            <label for="date_start" class="text-sm font-medium text-gray-700"
+              >Ngày bắt đầu:</label
+            >
+            <input
+              v-model="editedMaintenance.date_start"
+              type="date"
+              id="date_start"
+            />
+          </div>
 
-        <div class="mb-4">
-          <label for="date_end" class="text-sm font-medium text-gray-700"
-            >Ngày kết thúc:</label
-          >
-          <input
-            v-model="editedMaintenance.date_end"
-            type="date"
-            id="date_end"
-          />
-        </div>
+          <div class="mb-4">
+            <label for="date_end" class="text-sm font-medium text-gray-700"
+              >Ngày kết thúc:</label
+            >
+            <input
+              v-model="editedMaintenance.date_end"
+              type="date"
+              id="date_end"
+            />
+          </div>
 
-        <div class="mb-4">
-          <label for="cost" class="text-sm font-medium text-gray-700"
-            >Chi phí:</label
-          >
-          <input v-model="editedMaintenance.cost" type="number" id="cost" />
+          <div class="mb-4">
+            <label for="cost" class="text-sm font-medium text-gray-700"
+              >Chi phí:</label
+            >
+            <input v-model="editedMaintenance.cost" type="number" id="cost" />
+          </div>
         </div>
 
         <div class="flex items-center mb-4">
           <label for="materialId" class="font-semibold w-6rem mr-2"
-            >Vật tư:</label
+            >Kỹ thuật viên:</label
           >
           <select v-model="editedMaintenance.employee_code">
             <option

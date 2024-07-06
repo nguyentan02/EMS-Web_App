@@ -54,7 +54,7 @@ class OrderService {
   async getOrders() {
     return await prisma.order.findMany({
       orderBy: {
-        orderDate: "asc",
+        orderDate: "desc",
       },
       include: {
         orderItems: {
@@ -68,7 +68,6 @@ class OrderService {
     try {
       const order = await prisma.order.findUnique({
         where: { id: +id },
-
         include: {
           orderItems: {
             include: { material: true },
@@ -156,14 +155,19 @@ class OrderService {
     try {
       const Inventory = await prisma.inventory.findMany({
         where: {
-          quantity: {
-            gt: 0,
+          material: {
+            trash: false,
           },
         },
         include: {
           material: true,
         },
       });
+      const filteredInventory = Inventory.filter(
+        (item) => item.quantity > 0 && !item.material.trash
+      );
+
+      console.log(filteredInventory);
       return new ApiRes(201, "succes", "Lấy dữ liêu thành công", Inventory);
     } catch (error) {
       console.log(error);

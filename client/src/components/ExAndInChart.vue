@@ -4,7 +4,7 @@
       type="bar"
       :data="chartData"
       :options="chartOptions"
-      class="h-[30rem]"
+      class="h-[30rem] md:w-[30rem]"
     />
   </div>
 </template>
@@ -69,6 +69,14 @@ const setChartOptions = () => {
       legend: {
         labels: {
           color: textColor,
+        },
+      },
+      title: {
+        display: true,
+        text: "Thống kê nhập xuất theo thiết bị",
+        position: "bottom",
+        padding: {
+          top: 20,
         },
       },
     },

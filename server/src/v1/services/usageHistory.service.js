@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const ApiRes = require("../utils/api-res");
 
-// const cron = require("node-cron");
+const cron = require("node-cron");
 const prisma = new PrismaClient();
 
 class UsageHistory {
@@ -54,6 +54,27 @@ class UsageHistory {
   }
   async updateUsing(idUsage, user, usage_start, usage_end, purpose) {
     try {
+      const usage_end_date = new Date(usage_end);
+      if (usage_end_date > new Date()) {
+        const usageHistory = await prisma.usageHistory.findUnique({
+          where: { id: idUsage },
+          select: { deviceId: true },
+        });
+        if (!usageHistory) {
+          return new ApiRes(
+            404,
+            "error",
+            "Không tìm thấy bản ghi usageHistory",
+            null
+          );
+        }
+
+        await prisma.device.update({
+          where: { id: usageHistory.deviceId },
+          data: { statusId: 2 },
+        });
+      }
+
       const updateUsing = await prisma.usageHistory.update({
         where: {
           id: idUsage,
@@ -65,6 +86,7 @@ class UsageHistory {
           purpose: purpose,
         },
       });
+
       return new ApiRes(201, "success", "Cập nhật thành công", updateUsing);
     } catch (error) {
       return new ApiRes(500, "error", "Cập nhật không thành công", error);
@@ -167,32 +189,30 @@ class UsageHistory {
   }
 }
 
-// cron.schedule("*/5 * * * *", async function () {
-//   const currentTime = new Date();
-//   const req = await prisma.usageHistory.findMany({
-//     where: {
-//       usage_end: { lt: currentTime },
-//       Device: {
-//         NOT: {
-//           statusId: 3,
-//         },
-//       },
-//     },
-//   });
-//   if (req.length > 0) {
-//     await prisma.device.updateMany({
-//       where: {
-//         id: {
-//           in: req.map((device) => device.deviceId),
-//         },
-//       },
-//       data: {
-//         statusId: 3,
-//       },
-//     });
-//   }
-//   console.log(req);
+cron.schedule("*/5 * * * *", async function () {
+  const currentTime = new Date();
+  const req = await prisma.usageHistory.findMany({
+    where: {
+      usage_end: { lt: currentTime },
+      Device: {
+        statusId: 2,
+      },
+    },
+  });
+  if (req.length > 0) {
+    await prisma.device.updateMany({
+      where: {
+        id: {
+          in: req.map((device) => device.deviceId),
+        },
+      },
+      data: {
+        statusId: 6,
+      },
+    });
+  }
+  console.log(req);
 
-//   console.log("running a task every 15 seconds");
-// });
+  console.log("running a task every 15 seconds");
+});
 module.exports = UsageHistory;

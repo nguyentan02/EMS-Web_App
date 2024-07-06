@@ -8,4 +8,9 @@ module.exports = {
     const get = await historyService.getUsageHistory();
     return res.json(get);
   },
+  getMaintenanDevice: async (req, res, next) => {
+    const historyService = new HistoryService();
+    const get = await historyService.getMaintenanDevice();
+    return res.json(get);
+  },
 };

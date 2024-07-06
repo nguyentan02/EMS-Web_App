@@ -29,7 +29,6 @@ module.exports = {
   updateStatus: async (req, res, next) => {
     const maintenance = new MaintenanceService();
     const data = req.body;
-    console.log(data);
     const update = await maintenance.updateStatus(data);
     return res.json(update);
   },
@@ -38,6 +37,7 @@ module.exports = {
     const get = await maintenance.getMaintenan();
     return res.json(get);
   },
+
   deletedMaterialItem: async (req, res, next) => {
     const maintenance = new MaintenanceService();
     const { id } = req.params;

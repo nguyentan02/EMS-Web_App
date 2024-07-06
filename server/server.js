@@ -1,7 +1,6 @@
 require("dotenv").config();
 const app = require("./src/app");
 const config = require("./src/v1/config/index");
-// const database = require("./src/v1/databases/postgreSQL");
 
 async function startServer() {
   try {

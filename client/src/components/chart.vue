@@ -4,7 +4,7 @@
       type="pie"
       :data="chartData"
       :options="chartOptions"
-      class="w-full md:w-[30rem]"
+      class="md:w-[20rem]"
     />
   </div>
 </template>
@@ -83,6 +83,10 @@ const setChartOptions = () => {
       title: {
         display: true,
         text: "Thống kê thiết bị theo phân loại",
+        position: "bottom",
+        padding: {
+          top: 20,
+        },
       },
     },
   };

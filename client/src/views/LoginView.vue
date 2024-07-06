@@ -21,7 +21,7 @@
           <label
             for="email"
             class="block text-sm font-medium leading-6 text-gray-900"
-            >User name</label
+            >Tài khoản</label
           >
           <div class="mt-2">
             <input
@@ -40,7 +40,7 @@
             <label
               for="password"
               class="block text-sm font-medium leading-6 text-gray-900"
-              >Password</label
+              >Mật khẩu</label
             >
           </div>
           <div class="mt-2">

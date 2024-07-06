@@ -56,7 +56,6 @@ const editMaterial = reactive({
   unit: "",
 });
 const updateDevice = async () => {
-  useMaterialStore.isLoading = true;
   const update = new FormData();
   update.append("image", selectedFile.value);
   update.append("id", editMaterial.id);
@@ -64,7 +63,6 @@ const updateDevice = async () => {
   update.append("description", editMaterial.description);
   update.append("unit", editMaterial.unit);
   await useMaterialStore.updateMaterial(update);
-  useMaterialStore.isLoading = false;
   if (useMaterialStore.err) {
     $toast.error(useMaterialStore.err, { position: "top-right" });
     return;
@@ -91,7 +89,6 @@ const createDevice = async () => {
   data.append("unit", createMaterial.unit);
   await useMaterialStore.createMaterial(data);
   useMaterialStore.isLoading = false;
-
   if (useMaterialStore.err) {
     $toast.error(useMaterialStore.err, { position: "top-right" });
     return;

@@ -374,10 +374,16 @@ function formatDuration(startTime) {
             >Đang hoạt động</fwb-badge
           >
           <fwb-badge
-            v-else="usage.Device.statusId === 3"
+            v-else-if="usage.Device.statusId === 4"
             type="yellow"
             class="w-[90px] ml-2"
             >Đang bảo trì</fwb-badge
+          >
+          <fwb-badge
+            v-else="usage.Device.statusId === 6"
+            type="red"
+            class="w-[90px] ml-2"
+            >Quá hạn sử dụng</fwb-badge
           >
         </td>
         <td class="text-center border">
@@ -406,6 +412,9 @@ function formatDuration(startTime) {
                 editDevices.idUsage = usage.id;
                 editDevices.user = usage.user;
                 editDevices.usage_start = dayjs(usage.usage_start).format(
+                  'YYYY-MM-DD'
+                );
+                editDevices.usage_end = dayjs(usage.usage_end).format(
                   'YYYY-MM-DD'
                 );
 
@@ -458,7 +467,7 @@ function formatDuration(startTime) {
                   class="h-[30px]"
                 />
               </div>
-              <!-- <div class="flex align-items-center gap-3 mb-3">
+              <div class="flex align-items-center gap-3 mb-3">
                 <label for="name" class="font-semibold w-6rem mr-9"
                   >Ngày hết hạn:</label
                 >
@@ -467,7 +476,7 @@ function formatDuration(startTime) {
                   type="date"
                   class="h-[30px]"
                 />
-              </div> -->
+              </div>
               <div class="text-start">
                 <fwb-textarea
                   v-model="creDevice.message"

@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const ApiRes = require("../utils/api-res");
-// const cron = require("node-cron");
+const cron = require("node-cron");
 const prisma = new PrismaClient();
 
 class MaintenanceService {
@@ -47,8 +47,14 @@ class MaintenanceService {
           const inventory = await prisma.inventory.findUnique({
             where: { id: inventoryId },
           });
-          if (!inventory || inventory.quantity < quantityMater) {
-            throw new Error("Vật liệu trong kho không đủ");
+
+          if (inventory.quantity < quantityMater) {
+            return new ApiRes(
+              400,
+              "failed",
+              "Vật liệu trong kho không đủ",
+              null
+            );
           }
 
           await prisma.inventory.update({
@@ -144,6 +150,13 @@ class MaintenanceService {
           const inventory = await prisma.inventory.findUnique({
             where: { id: inventoryId },
           });
+
+          if (!inventory || inventory.quantity < quantityMater) {
+            throw new Error(
+              `Vật liệu trong kho không đủ cho inventoryId: ${inventoryId}`
+            );
+          }
+
           if (existingItem) {
             const quantityDifference =
               quantityMater - existingItem.quantityMater;
@@ -224,15 +237,25 @@ class MaintenanceService {
             });
           }
         }
-
-        await prisma.device.update({
-          where: {
-            id: +deviceId,
-          },
-          data: {
-            statusId: 2,
-          },
-        });
+        if (statusId == 3) {
+          await prisma.device.update({
+            where: {
+              id: +deviceId,
+            },
+            data: {
+              statusId: 2,
+            },
+          });
+        } else {
+          await prisma.device.update({
+            where: {
+              id: +deviceId,
+            },
+            data: {
+              statusId: 4,
+            },
+          });
+        }
 
         return update;
       });
@@ -376,4 +399,29 @@ class MaintenanceService {
   }
 }
 
+cron.schedule("*/5 * * * * ", async function () {
+  const currentTime = new Date();
+  const req = await prisma.maintenance_History.findMany({
+    where: {
+      date_end: { lt: currentTime },
+      statusId: 4,
+    },
+  });
+  console.log(req);
+  if (req.length > 0) {
+    await prisma.maintenance_History.updateMany({
+      where: {
+        id: {
+          in: req.map((maintenance) => maintenance.id),
+        },
+      },
+      data: {
+        statusId: 5,
+      },
+    });
+  }
+  console.log(req);
+
+  console.log("running a task every 15 ge");
+});
 module.exports = MaintenanceService;
